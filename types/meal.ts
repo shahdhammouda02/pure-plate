@@ -19,8 +19,10 @@ export interface MealPlan {
 
 export interface UserInput {
   name: string;
-    age: number;
+  age: number;
+  gender: string;
+  activityLevel: string;
   goal: string;
+  dietaryPreference: string;
   ingredients: string;
-  mealsPerDay: number;
 }
