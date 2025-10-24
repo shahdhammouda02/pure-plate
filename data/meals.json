@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Grilled Chicken Bowl",
+    "description": "Grilled chicken breast with brown rice and steamed broccoli.",
+    "nutrients": { "calories": 450, "protein": 40, "carbs": 35, "fat": 10 }
+  },
+  {
+    "name": "Salmon with Quinoa",
+    "description": "Baked salmon served with quinoa and asparagus.",
+    "nutrients": { "calories": 520, "protein": 42, "carbs": 30, "fat": 15 }
+  },
+  {
+    "name": "Greek Yogurt Snack",
+    "description": "Plain Greek yogurt with berries and a drizzle of honey.",
+    "nutrients": { "calories": 180, "protein": 12, "carbs": 22, "fat": 5 }
+  }
+]
