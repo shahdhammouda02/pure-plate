@@ -9,6 +9,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { useSession } from "next-auth/react";
 
 import hero from "@/public/images/Hero_food.png";
 import hero2 from "@/public/images/hero2.png";
@@ -17,7 +18,15 @@ import missionImage from "@/public/images/Lucid_Origin_Healthy_food_meal_plannin
 import { Leaf } from "lucide-react";
 
 export default function HomePage() {
+    const { data: session } = useSession();
+  
   const router = useRouter();
+  const handleClick = (e: React.MouseEvent) => {
+    if (!session) {
+      e.preventDefault();
+      router.push("/auth/signin");
+    }
+  };
 
   return (
     <div className="w-full">
@@ -68,7 +77,7 @@ export default function HomePage() {
           <Button
             size="lg"
             className="bg-green-50 hover:bg-green-100 text-green-700 px-8 py-4 text-lg font-semibold rounded-lg shadow-lg cursor-pointer"
-            onClick={() => router.push("/planner")}
+            onClick={handleClick}
           >
             Get Started
           </Button>
@@ -215,7 +224,7 @@ export default function HomePage() {
             <Button
               size="lg"
               className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg font-semibold rounded-lg shadow-lg cursor-pointer"
-              onClick={() => router.push("/planner")}
+              onClick={handleClick}
             >
               Start Your Journey Today
             </Button>
