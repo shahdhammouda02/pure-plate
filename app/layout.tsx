@@ -32,7 +32,7 @@ export default function RootLayout({
       >
         <Providers>
         <Navbar />
-        <main className="flex-grow relative w-full">{children}</main>
+        <main className="flex min-h-[calc(100vh-64px)] w-full">{children}</main>
         <Footer />
         </Providers>
       </body>
