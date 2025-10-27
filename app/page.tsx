@@ -11,9 +11,9 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { useSession } from "next-auth/react";
 
-import hero from "@/public/images/Hero_food.png";
-import hero2 from "@/public/images/hero2.png";
-import hero3 from "@/public/images/hero3.png";
+import hero3 from "@/public/images/herobg.png";
+import hero2 from "@/public/images/Hero_food.png";
+import hero from "@/public/images/hero3.png";
 import missionImage from "@/public/images/Lucid_Origin_Healthy_food_meal_planning_concept_fresh_vegetabl_2.jpg";
 import { Leaf } from "lucide-react";
 
