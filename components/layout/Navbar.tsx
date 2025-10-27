@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { MenuIcon, XIcon, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
@@ -13,6 +14,14 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const { data: session } = useSession();
+
+  const router = useRouter();
+  const handleClick = (e: React.MouseEvent) => {
+    if (!session) {
+      e.preventDefault(); // stop default link behavior
+      router.push("/auth/signin");
+    }
+  };
 
   return (
    <nav className="w-full bg-green-50 shadow-md px-8 py-4 flex justify-between items-center relative">
@@ -42,6 +51,7 @@ export default function Navbar() {
         <NavigationMenuItem>
           <Link
             href="/planner"
+            onClick={handleClick}
             className={`${navigationMenuTriggerStyle()} bg-transparent text-green-700 hover:bg-green-100 hover:text-green-700 rounded-xl`}
           >
             Planner
