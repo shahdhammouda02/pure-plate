@@ -19,11 +19,13 @@ interface PlannerSidebarProps {
   setActiveSection: (
     section: "generate" | "results" | "history" | "goals" | "favorites"
   ) => void;
+  onMobileClose?: () => void;
 }
 
 const PlannerSidebar: FC<PlannerSidebarProps> = ({
   activeSection,
   setActiveSection,
+  onMobileClose,
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const { data: session } = useSession();
@@ -36,24 +38,35 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
     { key: "favorites", label: "Favorites", icon: Star },
   ];
 
+  const handleItemClick = (key: string) => {
+    setActiveSection(key as any);
+    if (onMobileClose) {
+      onMobileClose();
+    }
+  };
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <SidebarProvider>
       <Sidebar
-       className={`transition-all duration-300 relative ${
+        className={`transition-all duration-300 relative h-full bg-green-50 ${
           isOpen ? "w-64" : "w-16"
-        } h-full bg-green-50`}
+        }`}
       >
         <SidebarHeader>
           <div className="flex justify-between items-center p-4">
             {isOpen && (
-              <h2 className="text-2xl font-bold text-green-700">
+              <h2 className="text-xl md:text-2xl font-bold text-green-700 truncate">
                 Hello, {session?.user?.name?.split(" ")[0] || "Guest"}
               </h2>
             )}
 
             <button
-              className="text-green-600 font-bold text-lg cursor-pointer"
-              onClick={() => setIsOpen(!isOpen)}
+              className="text-green-600 font-bold text-lg cursor-pointer p-1 hover:bg-green-100 rounded"
+              onClick={handleToggle}
             >
               {isOpen ? (
                 <X className="w-5 h-5" />
@@ -65,20 +78,24 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
         </SidebarHeader>
 
         <SidebarContent>
-          <SidebarMenu className="mt-4 space-y-5">
+          <SidebarMenu className="mt-4 space-y-2 md:space-y-5 px-2 md:px-5">
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
                 <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton
                     isActive={activeSection === item.key}
-                    onClick={() => setActiveSection(item.key as any)}
-                    className={`flex items-center gap-2 text-green-600 font-semibold cursor-pointer ${
-                      isOpen ? "text-lg" : "justify-center"
+                    onClick={() => handleItemClick(item.key)}
+                    className={`flex items-center gap-2 text-green-600 font-semibold cursor-pointer p-3 rounded-lg hover:bg-green-100 transition-colors ${
+                      isOpen ? "text-base md:text-lg" : "justify-center"
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    {isOpen && item.label}
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    {isOpen && (
+                      <span className="truncate text-sm md:text-base">
+                        {item.label}
+                      </span>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );
