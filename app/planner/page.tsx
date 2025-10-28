@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import Sidebar from "@/components/planner/Sidebar";
 import GeneratePlanForm from "@/components/planner/GeneratePlanForm";
 import ResultsPage from "@/components/planner/Results";
+import HistoryPage from "@/components/planner/History";
+import GoalsPage from "@/components/planner/Goals";
+import FavoritesPage from "@/components/planner/Favorites";
 import Image from "next/image";
 import plan from '@/public/images/plan bg.png'
 import { MealPlan } from "@/types/meal";
@@ -34,52 +37,37 @@ export default function PlannerPage() {
     setGeneratedPlan(null);
   };
 
-  const renderContent = () => {
-    switch (activeSection) {
-      case "generate":
-        return <GeneratePlanForm onPlanGenerated={handlePlanGenerated} />;
-      case "results":
-        return generatedPlan ? (
-          <ResultsPage
-            mealPlan={generatedPlan} 
-            onBackToGenerate={handleBackToGenerate}
-          />
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-600">No plan generated yet.</p>
-            <button
-              onClick={() => setActiveSection("generate")}
-              className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
-            >
-              Generate Plan
-            </button>
-          </div>
-        );
-      case "history":
-        return (
-          <div className="text-center py-8">
-            <h3 className="text-xl font-semibold text-green-800 mb-4">History</h3>
-            <p className="text-gray-600">Your meal plan history will appear here.</p>
-          </div>
-        );
-      case "goals":
-        return (
-          <div className="text-center py-8">
-            <h3 className="text-xl font-semibold text-green-800 mb-4">Goals</h3>
-            <p className="text-gray-600">Set and track your fitness goals here.</p>
-          </div>
-        );
-      case "favorites":
-        return (
-          <div className="text-center py-8">
-            <h3 className="text-xl font-semibold text-green-800 mb-4">Favorites</h3>
-            <p className="text-gray-600">Your favorite meals and plans will appear here.</p>
-          </div>
-        );
-      default:
-        return <GeneratePlanForm onPlanGenerated={handlePlanGenerated} />;
-    }
-  };
+ const renderContent = () => {
+  switch (activeSection) {
+    case "generate":
+      return <GeneratePlanForm onPlanGenerated={handlePlanGenerated} />;
+    case "results":
+      return generatedPlan ? (
+        <ResultsPage
+          mealPlan={generatedPlan} 
+          onBackToGenerate={handleBackToGenerate}
+        />
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-gray-600">No plan generated yet.</p>
+          <button
+            onClick={() => setActiveSection("generate")}
+            className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+          >
+            Generate Plan
+          </button>
+        </div>
+      );
+    case "history":
+      return <HistoryPage />;
+    case "goals":
+      return <GoalsPage />;
+    case "favorites":
+      return <FavoritesPage />;
+    default:
+      return <GeneratePlanForm onPlanGenerated={handlePlanGenerated} />;
+  }
+};
 
   return (
    <div className="relative min-h-screen w-full">
