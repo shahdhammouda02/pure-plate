@@ -1,3 +1,4 @@
+// components/planner/GeneratePlanForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -13,40 +14,78 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { UserInput, MealPlan, Meal, NutrientInfo } from "@/types/meal"; // Fixed import path
+import { getMealsByTime } from "@/data/meals";
 
-export default function GeneratePlanForm() {
+interface GeneratePlanFormProps {
+  onPlanGenerated: (plan: MealPlan) => void;
+}
+
+export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormProps) {
   const { data: session } = useSession();
   const user = session?.user?.name || "Guest";
 
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, setValue, reset } = useForm({
-    defaultValues: {
-      age: 18,
-      activityLevel: "",
-      goal: "",
-      dietaryPreference: "",
-      ingredients: "",
-      weight: "",
-      height: "",
-      mealsPerDay: "",
-      planDuration: "",
-    },
-  });
+  const { register, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm<UserInput>();
 
-  const onSubmit = async (data: any) => {
+  // Process meal description - handle both string and function types
+  const getMealDescription = (meal: Meal, userInput: UserInput, ingredients: string): string => {
+    if (typeof meal.description === 'function') {
+      return meal.description(userInput, ingredients);
+    }
+    return meal.description;
+  };
+
+  // Generate personalized tip based on user input and calculated nutrients
+  const generatePersonalizedTip = (userInput: UserInput, nutrients: NutrientInfo): string => {
+    const activityLevels: Record<string, string> = {
+      low: "sedentary lifestyle",
+      moderate: "moderate activity level",
+      high: "active lifestyle"
+    };
+
+    const goals: Record<string, string> = {
+      weight_loss: `weight loss journey`,
+      muscle_gain: `muscle building goals`,
+      maintain: `weight maintenance`
+    };
+
+    return `Based on your ${activityLevels[userInput.activityLevel] || 'activity level'} and ${goals[userInput.goal] || 'goals'}, this ${userInput.planDuration.replace('_', ' ')} plan provides ${nutrients.calories} calories with ${nutrients.protein}g protein to support your ${userInput.dietaryPreference} dietary preferences.`;
+  };
+
+  // Generate personalized meal plan based on user input
+  const generateMealPlan = async (userInput: UserInput): Promise<MealPlan> => {
+    const response = await fetch('/api/generate-meal', { // Fixed endpoint to match your route
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userInput),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate meal plan');
+    }
+
+    return response.json();
+  };
+
+  const onSubmit = async (data: UserInput) => {
     setLoading(true);
     try {
       console.log("Form data:", data);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      alert("Your personalized plan has been generated!");
-      reset();
+      const mealPlan = await generateMealPlan(data);
+      onPlanGenerated(mealPlan);
     } catch (error) {
-      console.error(error);
+      console.error("Error generating meal plan:", error);
       alert("Something went wrong while generating your plan.");
     } finally {
       setLoading(false);
     }
   };
+
+  // Watch form values for real-time preview
+  const watchedValues = watch();
 
   return (
     <div className="w-full">
@@ -57,8 +96,7 @@ export default function GeneratePlanForm() {
           <span className="capitalize">{user}</span> 🌿
         </h2>
         <p className="text-gray-600 text-xs md:text-sm lg:text-base px-2 md:px-0">
-          Fill in your details below and we'll create a plan tailored to your
-          lifestyle and goals.
+          Fill in your details below and we'll create a plan tailored to your lifestyle and goals.
         </p>
       </div>
 
@@ -68,72 +106,99 @@ export default function GeneratePlanForm() {
           onSubmit={handleSubmit(onSubmit)}
           className="bg-green-50 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6 lg:space-y-8 border border-gray-200"
         >
-          {/* Row 1 - Age, Weight, Height */}
+          {/* Personal Information Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
             <div className="flex flex-col space-y-1 md:space-y-2">
               <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
-                Age
+                Age *
               </label>
               <Input
                 type="number"
                 min={10}
                 max={100}
-                {...register("age", { required: true })}
+                {...register("age", { 
+                  required: "Age is required",
+                  min: { value: 10, message: "Age must be at least 10" },
+                  max: { value: 100, message: "Age must be less than 100" }
+                })}
                 placeholder="e.g. 25"
                 className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base"
               />
+              {errors.age && (
+                <span className="text-red-500 text-xs">{errors.age.message}</span>
+              )}
             </div>
 
             <div className="flex flex-col space-y-1 md:space-y-2">
               <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
-                Weight (kg)
+                Weight (kg) *
               </label>
               <Input
                 type="number"
-                {...register("weight")}
+                step="0.1"
+                {...register("weight", { 
+                  required: "Weight is required",
+                  min: { value: 30, message: "Weight must be at least 30kg" },
+                  max: { value: 300, message: "Weight must be less than 300kg" }
+                })}
                 placeholder="e.g. 70"
                 className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base"
               />
+              {errors.weight && (
+                <span className="text-red-500 text-xs">{errors.weight.message}</span>
+              )}
             </div>
 
             <div className="flex flex-col space-y-1 md:space-y-2">
               <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
-                Height (cm)
+                Height (cm) *
               </label>
               <Input
                 type="number"
-                {...register("height")}
+                {...register("height", { 
+                  required: "Height is required",
+                  min: { value: 100, message: "Height must be at least 100cm" },
+                  max: { value: 250, message: "Height must be less than 250cm" }
+                })}
                 placeholder="e.g. 170"
                 className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base"
               />
+              {errors.height && (
+                <span className="text-red-500 text-xs">{errors.height.message}</span>
+              )}
             </div>
           </div>
 
-          {/* Row 2 - Activity Level, Goal, Dietary Preference */}
+          {/* Preferences Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
             <div className="flex flex-col space-y-1 md:space-y-2">
               <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
-                Activity Level
+                Activity Level *
               </label>
-              <Select onValueChange={(val) => setValue("activityLevel", val)}>
+              <Select 
+                onValueChange={(val: string) => setValue("activityLevel", val, { shouldValidate: true })}
+              >
                 <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base">
                   <SelectValue placeholder="Select activity level" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="low">Low (Sedentary)</SelectItem>
-                  <SelectItem value="moderate">
-                    Moderate (Light Exercise)
-                  </SelectItem>
+                  <SelectItem value="moderate">Moderate (Light Exercise)</SelectItem>
                   <SelectItem value="high">High (Active Lifestyle)</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.activityLevel && (
+                <span className="text-red-500 text-xs">Activity level is required</span>
+              )}
             </div>
 
             <div className="flex flex-col space-y-1 md:space-y-2">
               <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
-                Goal
+                Goal *
               </label>
-              <Select onValueChange={(val) => setValue("goal", val)}>
+              <Select 
+                onValueChange={(val: string) => setValue("goal", val, { shouldValidate: true })}
+              >
                 <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base">
                   <SelectValue placeholder="Select your goal" />
                 </SelectTrigger>
@@ -143,14 +208,17 @@ export default function GeneratePlanForm() {
                   <SelectItem value="maintain">Maintain Weight</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.goal && (
+                <span className="text-red-500 text-xs">Goal is required</span>
+              )}
             </div>
 
             <div className="flex flex-col space-y-1 md:space-y-2">
               <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
-                Dietary Preference
+                Dietary Preference *
               </label>
-              <Select
-                onValueChange={(val) => setValue("dietaryPreference", val)}
+              <Select 
+                onValueChange={(val: string) => setValue("dietaryPreference", val, { shouldValidate: true })}
               >
                 <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base">
                   <SelectValue placeholder="Select dietary preference" />
@@ -162,28 +230,43 @@ export default function GeneratePlanForm() {
                   <SelectItem value="none">No Restrictions</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.dietaryPreference && (
+                <span className="text-red-500 text-xs">Dietary preference is required</span>
+              )}
             </div>
           </div>
 
-          {/* Row 3 - Meals per Day, Plan Duration */}
+          {/* Plan Details Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
             <div className="flex flex-col space-y-1 md:space-y-2">
               <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
-                Meals per Day
+                Meals per Day *
               </label>
               <Input
                 type="number"
-                {...register("mealsPerDay")}
+                min={1}
+                max={6}
+                {...register("mealsPerDay", { 
+                  required: "Meals per day is required",
+                  min: { value: 1, message: "At least 1 meal per day" },
+                  max: { value: 6, message: "Maximum 6 meals per day" },
+                  valueAsNumber: true
+                })}
                 placeholder="e.g. 3"
                 className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base"
               />
+              {errors.mealsPerDay && (
+                <span className="text-red-500 text-xs">{errors.mealsPerDay.message}</span>
+              )}
             </div>
 
             <div className="flex flex-col space-y-1 md:space-y-2">
               <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
-                Plan Duration
+                Plan Duration *
               </label>
-              <Select onValueChange={(val) => setValue("planDuration", val)}>
+              <Select 
+                onValueChange={(val: string) => setValue("planDuration", val, { shouldValidate: true })}
+              >
                 <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base">
                   <SelectValue placeholder="Select duration" />
                 </SelectTrigger>
@@ -193,6 +276,9 @@ export default function GeneratePlanForm() {
                   <SelectItem value="1_month">1 Month</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.planDuration && (
+                <span className="text-red-500 text-xs">Plan duration is required</span>
+              )}
             </div>
 
             <div className="hidden sm:block">
@@ -200,26 +286,55 @@ export default function GeneratePlanForm() {
             </div>
           </div>
 
-          {/* Ingredients (Full Width) */}
+          {/* Ingredients */}
           <div className="flex flex-col space-y-1 md:space-y-2">
             <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
               Ingredients You Have
             </label>
             <Textarea
-              placeholder="e.g. chicken, rice, vegetables..."
+              placeholder="e.g. chicken, rice, vegetables, eggs, oats, quinoa..."
               {...register("ingredients")}
               className="border-green-300 focus:border-green-500 focus:ring-green-200 min-h-20 md:min-h-24 lg:min-h-[100px] text-sm md:text-base"
             />
+            <p className="text-gray-500 text-xs">
+              List ingredients you have available (optional) - we'll incorporate them into your meals
+            </p>
           </div>
+
+          {/* Meal Time Preview */}
+          {watchedValues.mealsPerDay && (
+            <div className="bg-white rounded-lg p-4 border border-green-200">
+              <h4 className="font-semibold text-green-800 mb-3">
+                Your Daily Meal Structure
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                {['breakfast', 'lunch', 'dinner', 'snack'].map((mealTime) => (
+                  <div key={mealTime} className="text-center p-3 bg-green-50 rounded-lg">
+                    <div className="font-medium text-green-700 capitalize">{mealTime}</div>
+                    <div className="text-green-600">
+                      {getMealsByTime(mealTime).length} options
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="pt-2 md:pt-4">
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg md:rounded-xl py-2 md:py-3 text-sm md:text-base lg:text-lg font-medium"
+              className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg md:rounded-xl py-2 md:py-3 text-sm md:text-base lg:text-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
-              {loading ? "Generating..." : "Generate My Plan"}
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Generating Your Personalized Plan...
+                </div>
+              ) : (
+                "Generate My Plan"
+              )}
             </Button>
           </div>
         </form>
