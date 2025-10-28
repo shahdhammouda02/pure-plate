@@ -22,8 +22,9 @@ export default function HomePage() {
   
   const router = useRouter();
   const handleClick = (e: React.MouseEvent) => {
-    if (!session) {
-      e.preventDefault();
+    if (session) {
+      router.push("/planner");
+    } else {
       router.push("/auth/signin");
     }
   };
