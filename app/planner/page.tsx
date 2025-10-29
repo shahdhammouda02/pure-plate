@@ -9,7 +9,7 @@ import GoalsPage from "@/components/planner/Goals";
 import FavoritesPage from "@/components/planner/Favorites";
 import Image from "next/image";
 import plan from '@/public/images/plan bg.png'
-import { MealPlan } from "@/types/meal";
+import { MealPlan, UserInput } from "@/types/meal";
 
 export default function PlannerPage() {
   const [activeSection, setActiveSection] = useState<
@@ -18,6 +18,7 @@ export default function PlannerPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState<MealPlan | null>(null);
+  const [userInput, setUserInput] = useState<UserInput | undefined>(undefined);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -27,47 +28,118 @@ export default function PlannerPage() {
   }, []);
 
   // Add the missing handler function
-  const handlePlanGenerated = (plan: MealPlan) => {
+  const handlePlanGenerated = (plan: MealPlan, input: UserInput) => {
     setGeneratedPlan(plan);
+    setUserInput(input);
     setActiveSection("results");
+    
+    // Auto-save to history when plan is generated
+    savePlanToHistory(plan, input);
+    
+    // Auto-create goals based on user input
+    createGoalsFromInput(input);
+  };
+
+  // Function to auto-save plan to history
+  const savePlanToHistory = (plan: MealPlan, input: UserInput) => {
+    const savedPlan = {
+      ...plan,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+      userInput: input,
+      name: `${formatGoalName(input.goal)} Plan - ${new Date().toLocaleDateString()}`
+    };
+
+    const existingHistory = JSON.parse(localStorage.getItem('mealPlanHistory') || '[]');
+    const updatedHistory = [savedPlan, ...existingHistory];
+    localStorage.setItem('mealPlanHistory', JSON.stringify(updatedHistory));
+    console.log('Plan saved to history:', savedPlan.name);
+  };
+
+  // Function to auto-create goals from user input
+  const createGoalsFromInput = (input: UserInput) => {
+    const existingGoals = JSON.parse(localStorage.getItem('userGoals') || '[]');
+    
+    // Check if similar goals already exist
+    const goalExists = existingGoals.some((goal: any) => 
+      goal.title.includes(formatGoalName(input.goal))
+    );
+
+    if (!goalExists) {
+      const newGoals = [
+        {
+          id: `auto-${Date.now()}-1`,
+          title: `${formatGoalName(input.goal)} Goal`,
+          description: `Achieve your ${input.goal.replace('_', ' ')} goal through personalized meal planning and exercise`,
+          type: input.goal as any,
+          targetValue: input.goal === 'weight_loss' ? input.weight - 5 : 
+                      input.goal === 'muscle_gain' ? input.weight + 5 : input.weight,
+          currentValue: input.weight,
+          unit: "kg",
+          deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          progress: 0,
+          createdAt: new Date().toISOString().split('T')[0],
+          completed: false
+        },
+        {
+          id: `auto-${Date.now()}-2`,
+          title: `Follow ${input.mealsPerDay} Meals Daily`,
+          description: `Maintain a consistent ${input.mealsPerDay}-meal daily eating schedule`,
+          type: "nutrition",
+          targetValue: 30,
+          currentValue: 0,
+          unit: "days",
+          deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          progress: 0,
+          createdAt: new Date().toISOString().split('T')[0],
+          completed: false
+        }
+      ];
+
+      const updatedGoals = [...newGoals, ...existingGoals];
+      localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+      console.log('Auto-created goals:', newGoals.length);
+    }
   };
 
   const handleBackToGenerate = () => {
     setActiveSection("generate");
     setGeneratedPlan(null);
+    setUserInput(undefined);
   };
 
- const renderContent = () => {
-  switch (activeSection) {
-    case "generate":
-      return <GeneratePlanForm onPlanGenerated={handlePlanGenerated} />;
-    case "results":
-      return generatedPlan ? (
-        <ResultsPage
-          mealPlan={generatedPlan} 
-          onBackToGenerate={handleBackToGenerate}
-        />
-      ) : (
-        <div className="text-center py-8">
-          <p className="text-gray-600">No plan generated yet.</p>
-          <button
-            onClick={() => setActiveSection("generate")}
-            className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
-          >
-            Generate Plan
-          </button>
-        </div>
-      );
-    case "history":
-      return <HistoryPage />;
-    case "goals":
-      return <GoalsPage />;
-    case "favorites":
-      return <FavoritesPage />;
-    default:
-      return <GeneratePlanForm onPlanGenerated={handlePlanGenerated} />;
-  }
-};
+  const renderContent = () => {
+    switch (activeSection) {
+      case "generate":
+        return <GeneratePlanForm onPlanGenerated={handlePlanGenerated} />;
+      case "results":
+        return generatedPlan ? (
+          <ResultsPage
+            mealPlan={generatedPlan} 
+            onBackToGenerate={handleBackToGenerate}
+            userInput={userInput}
+          />
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No plan generated yet.</p>
+            <button
+              onClick={() => setActiveSection("generate")}
+              className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+            >
+              Generate Plan
+            </button>
+          </div>
+        );
+      case "history":
+        return <HistoryPage />;
+      case "goals":
+        return <GoalsPage />;
+      case "favorites":
+        return <FavoritesPage />;
+      default:
+        return <GeneratePlanForm onPlanGenerated={handlePlanGenerated} />;
+    }
+  };
 
   return (
    <div className="relative min-h-screen w-full">
@@ -143,3 +215,8 @@ export default function PlannerPage() {
 </div>
   );
 }
+
+// Helper function
+const formatGoalName = (goal: string) => {
+  return goal.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};

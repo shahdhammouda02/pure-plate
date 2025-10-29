@@ -1,4 +1,3 @@
-// components/planner/GeneratePlanForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -14,11 +13,11 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { UserInput, MealPlan, Meal, NutrientInfo } from "@/types/meal"; // Fixed import path
+import { UserInput, MealPlan } from "@/types/meal";
 import { getMealsByTime } from "@/data/meals";
 
 interface GeneratePlanFormProps {
-  onPlanGenerated: (plan: MealPlan) => void;
+  onPlanGenerated: (plan: MealPlan, userInput: UserInput) => void;
 }
 
 export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormProps) {
@@ -28,34 +27,9 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
   const [loading, setLoading] = useState(false);
   const { register, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm<UserInput>();
 
-  // Process meal description - handle both string and function types
-  const getMealDescription = (meal: Meal, userInput: UserInput, ingredients: string): string => {
-    if (typeof meal.description === 'function') {
-      return meal.description(userInput, ingredients);
-    }
-    return meal.description;
-  };
-
-  // Generate personalized tip based on user input and calculated nutrients
-  const generatePersonalizedTip = (userInput: UserInput, nutrients: NutrientInfo): string => {
-    const activityLevels: Record<string, string> = {
-      low: "sedentary lifestyle",
-      moderate: "moderate activity level",
-      high: "active lifestyle"
-    };
-
-    const goals: Record<string, string> = {
-      weight_loss: `weight loss journey`,
-      muscle_gain: `muscle building goals`,
-      maintain: `weight maintenance`
-    };
-
-    return `Based on your ${activityLevels[userInput.activityLevel] || 'activity level'} and ${goals[userInput.goal] || 'goals'}, this ${userInput.planDuration.replace('_', ' ')} plan provides ${nutrients.calories} calories with ${nutrients.protein}g protein to support your ${userInput.dietaryPreference} dietary preferences.`;
-  };
-
   // Generate personalized meal plan based on user input
   const generateMealPlan = async (userInput: UserInput): Promise<MealPlan> => {
-    const response = await fetch('/api/generate-meal', { // Fixed endpoint to match your route
+    const response = await fetch('/api/generate-meal', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -75,7 +49,7 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
     try {
       console.log("Form data:", data);
       const mealPlan = await generateMealPlan(data);
-      onPlanGenerated(mealPlan);
+      onPlanGenerated(mealPlan, data); // Pass both plan and userInput
     } catch (error) {
       console.error("Error generating meal plan:", error);
       alert("Something went wrong while generating your plan.");
