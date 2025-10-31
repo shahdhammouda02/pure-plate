@@ -20,12 +20,14 @@ interface PlannerSidebarProps {
     section: "generate" | "results" | "history" | "goals" | "favorites"
   ) => void;
   onMobileClose?: () => void;
+  onToggle?: (collapsed: boolean) => void;
 }
 
 const PlannerSidebar: FC<PlannerSidebarProps> = ({
   activeSection,
   setActiveSection,
   onMobileClose,
+  onToggle,
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const { data: session } = useSession();
@@ -46,7 +48,11 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
   };
 
   const handleToggle = () => {
-    setIsOpen(!isOpen);
+    const newState = !isOpen;
+    setIsOpen(newState);
+    if (onToggle) {
+      onToggle(!newState); // Send collapsed state to parent
+    }
   };
 
   return (
@@ -90,7 +96,7 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
                       isOpen ? "text-base md:text-lg" : "justify-center"
                     }`}
                   >
-                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    <Icon className="w-5 h-5 shrink-0" />
                     {isOpen && (
                       <span className="truncate text-sm md:text-base">
                         {item.label}
