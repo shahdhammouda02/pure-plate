@@ -24,7 +24,7 @@ interface PlannerSidebarProps {
 }
 
 const PlannerSidebar: FC<PlannerSidebarProps> = ({
-  activeSection,
+  activeSection = "generate", // Default to "generate"
   setActiveSection,
   onMobileClose,
   onToggle,
@@ -87,13 +87,18 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
           <SidebarMenu className="mt-4 space-y-2 md:space-y-5 px-2 md:px-5">
             {menuItems.map((item) => {
               const Icon = item.icon;
+              const isActive = activeSection === item.key;
               return (
                 <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton
-                    isActive={activeSection === item.key}
+                    isActive={isActive}
                     onClick={() => handleItemClick(item.key)}
-                    className={`flex items-center gap-2 text-green-600 font-semibold cursor-pointer p-3 rounded-lg hover:bg-green-100 transition-colors ${
+                    className={`flex items-center gap-2 font-semibold cursor-pointer p-3 rounded-lg transition-colors ${
                       isOpen ? "text-base md:text-lg" : "justify-center"
+                    } ${
+                      isActive
+                        ? "bg-green-100 text-green-800" // Active state with background
+                        : "text-green-600 hover:bg-green-100" // Hover state
                     }`}
                   >
                     <Icon className="w-5 h-5 shrink-0" />

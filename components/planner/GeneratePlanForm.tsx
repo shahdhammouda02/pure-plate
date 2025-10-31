@@ -62,28 +62,31 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
   const watchedValues = watch();
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-4xl mx-auto pb-12"> {/* Added pb-12 for bottom spacing */}
       {/* Header */}
-      <div className="text-center mb-4 md:mb-6 lg:mb-8">
-        <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-2 md:mb-3 lg:mb-4 text-green-800">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold mb-2 text-green-800">
           Generate Your Personalized Plan,{" "}
           <span className="capitalize">{user}</span> 🌿
         </h2>
-        <p className="text-gray-600 text-xs md:text-sm lg:text-base px-2 md:px-0">
+        <p className="text-gray-600">
           Fill in your details below and we'll create a plan tailored to your lifestyle and goals.
         </p>
       </div>
 
-      {/* Form with scroll */}
-      <div className="max-h-[calc(100vh-180px)] md:max-h-[calc(100vh-200px)] lg:max-h-[calc(100vh-250px)] overflow-y-auto pr-1 md:pr-2">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="bg-green-50 rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6 lg:space-y-8 border border-gray-200"
-        >
-          {/* Personal Information Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
-            <div className="flex flex-col space-y-1 md:space-y-2">
-              <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
+      {/* Form without scroll - using browser's natural scroll */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-green-50 rounded-xl shadow-lg p-6 space-y-6 border border-gray-200"
+      >
+        {/* Personal Information Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-green-800 border-b border-green-200 pb-2">
+            Personal Information
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col space-y-2">
+              <label className="text-green-800 font-semibold text-sm">
                 Age *
               </label>
               <Input
@@ -96,15 +99,15 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
                   max: { value: 100, message: "Age must be less than 100" }
                 })}
                 placeholder="e.g. 25"
-                className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base"
+                className="border-green-300 focus:border-green-500 focus:ring-green-200"
               />
               {errors.age && (
                 <span className="text-red-500 text-xs">{errors.age.message}</span>
               )}
             </div>
 
-            <div className="flex flex-col space-y-1 md:space-y-2">
-              <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
+            <div className="flex flex-col space-y-2">
+              <label className="text-green-800 font-semibold text-sm">
                 Weight (kg) *
               </label>
               <Input
@@ -116,15 +119,15 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
                   max: { value: 300, message: "Weight must be less than 300kg" }
                 })}
                 placeholder="e.g. 70"
-                className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base"
+                className="border-green-300 focus:border-green-500 focus:ring-green-200"
               />
               {errors.weight && (
                 <span className="text-red-500 text-xs">{errors.weight.message}</span>
               )}
             </div>
 
-            <div className="flex flex-col space-y-1 md:space-y-2">
-              <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
+            <div className="flex flex-col space-y-2">
+              <label className="text-green-800 font-semibold text-sm">
                 Height (cm) *
               </label>
               <Input
@@ -135,24 +138,29 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
                   max: { value: 250, message: "Height must be less than 250cm" }
                 })}
                 placeholder="e.g. 170"
-                className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base"
+                className="border-green-300 focus:border-green-500 focus:ring-green-200"
               />
               {errors.height && (
                 <span className="text-red-500 text-xs">{errors.height.message}</span>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Preferences Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
-            <div className="flex flex-col space-y-1 md:space-y-2">
-              <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
+        {/* Preferences Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-green-800 border-b border-green-200 pb-2">
+            Preferences
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col space-y-2">
+              <label className="text-green-800 font-semibold text-sm">
                 Activity Level *
               </label>
               <Select 
                 onValueChange={(val: string) => setValue("activityLevel", val, { shouldValidate: true })}
               >
-                <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base">
+                <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200">
                   <SelectValue placeholder="Select activity level" />
                 </SelectTrigger>
                 <SelectContent>
@@ -166,14 +174,14 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
               )}
             </div>
 
-            <div className="flex flex-col space-y-1 md:space-y-2">
-              <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
+            <div className="flex flex-col space-y-2">
+              <label className="text-green-800 font-semibold text-sm">
                 Goal *
               </label>
               <Select 
                 onValueChange={(val: string) => setValue("goal", val, { shouldValidate: true })}
               >
-                <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base">
+                <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200">
                   <SelectValue placeholder="Select your goal" />
                 </SelectTrigger>
                 <SelectContent>
@@ -187,14 +195,14 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
               )}
             </div>
 
-            <div className="flex flex-col space-y-1 md:space-y-2">
-              <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
+            <div className="flex flex-col space-y-2">
+              <label className="text-green-800 font-semibold text-sm">
                 Dietary Preference *
               </label>
               <Select 
                 onValueChange={(val: string) => setValue("dietaryPreference", val, { shouldValidate: true })}
               >
-                <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base">
+                <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200">
                   <SelectValue placeholder="Select dietary preference" />
                 </SelectTrigger>
                 <SelectContent>
@@ -209,11 +217,16 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
               )}
             </div>
           </div>
+        </div>
 
-          {/* Plan Details Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
-            <div className="flex flex-col space-y-1 md:space-y-2">
-              <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
+        {/* Plan Details Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-green-800 border-b border-green-200 pb-2">
+            Plan Details
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col space-y-2">
+              <label className="text-green-800 font-semibold text-sm">
                 Meals per Day *
               </label>
               <Input
@@ -227,21 +240,21 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
                   valueAsNumber: true
                 })}
                 placeholder="e.g. 3"
-                className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base"
+                className="border-green-300 focus:border-green-500 focus:ring-green-200"
               />
               {errors.mealsPerDay && (
                 <span className="text-red-500 text-xs">{errors.mealsPerDay.message}</span>
               )}
             </div>
 
-            <div className="flex flex-col space-y-1 md:space-y-2">
-              <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
+            <div className="flex flex-col space-y-2">
+              <label className="text-green-800 font-semibold text-sm">
                 Plan Duration *
               </label>
               <Select 
                 onValueChange={(val: string) => setValue("planDuration", val, { shouldValidate: true })}
               >
-                <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200 w-full text-sm md:text-base">
+                <SelectTrigger className="border-green-300 focus:border-green-500 focus:ring-green-200">
                   <SelectValue placeholder="Select duration" />
                 </SelectTrigger>
                 <SelectContent>
@@ -254,65 +267,63 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
                 <span className="text-red-500 text-xs">Plan duration is required</span>
               )}
             </div>
-
-            <div className="hidden sm:block">
-              {/* Empty space for alignment */}
-            </div>
           </div>
+        </div>
 
-          {/* Ingredients */}
-          <div className="flex flex-col space-y-1 md:space-y-2">
-            <label className="text-green-800 font-semibold text-xs md:text-sm lg:text-base">
-              Ingredients You Have
-            </label>
+        {/* Ingredients Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-green-800 border-b border-green-200 pb-2">
+            Available Ingredients
+          </h3>
+          <div className="flex flex-col space-y-2">
             <Textarea
               placeholder="e.g. chicken, rice, vegetables, eggs, oats, quinoa..."
               {...register("ingredients")}
-              className="border-green-300 focus:border-green-500 focus:ring-green-200 min-h-20 md:min-h-24 lg:min-h-[100px] text-sm md:text-base"
+              className="border-green-300 focus:border-green-500 focus:ring-green-200 min-h-24"
             />
             <p className="text-gray-500 text-xs">
               List ingredients you have available (optional) - we'll incorporate them into your meals
             </p>
           </div>
+        </div>
 
-          {/* Meal Time Preview */}
-          {watchedValues.mealsPerDay && (
-            <div className="bg-white rounded-lg p-4 border border-green-200">
-              <h4 className="font-semibold text-green-800 mb-3">
-                Your Daily Meal Structure
-              </h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                {['breakfast', 'lunch', 'dinner', 'snack'].map((mealTime) => (
-                  <div key={mealTime} className="text-center p-3 bg-green-50 rounded-lg">
-                    <div className="font-medium text-green-700 capitalize">{mealTime}</div>
-                    <div className="text-green-600">
-                      {getMealsByTime(mealTime).length} options
-                    </div>
+        {/* Meal Time Preview */}
+        {watchedValues.mealsPerDay && (
+          <div className="bg-white rounded-lg p-4 border border-green-200">
+            <h4 className="font-semibold text-green-800 mb-3">
+              Your Daily Meal Structure
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              {['breakfast', 'lunch', 'dinner', 'snack'].map((mealTime) => (
+                <div key={mealTime} className="text-center p-3 bg-green-50 rounded-lg">
+                  <div className="font-medium text-green-700 capitalize">{mealTime}</div>
+                  <div className="text-green-600">
+                    {getMealsByTime(mealTime).length} options
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <div className="pt-2 md:pt-4">
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg md:rounded-xl py-2 md:py-3 text-sm md:text-base lg:text-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Generating Your Personalized Plan...
                 </div>
-              ) : (
-                "Generate My Plan"
-              )}
-            </Button>
+              ))}
+            </div>
           </div>
-        </form>
-      </div>
+        )}
+
+        {/* Submit Button */}
+        <div className="pt-4">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg py-3 text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Generating Your Personalized Plan...
+              </div>
+            ) : (
+              "Generate My Plan"
+            )}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
