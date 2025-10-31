@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { MenuIcon, XIcon, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
@@ -14,6 +14,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const { data: session } = useSession();
+  const pathname = usePathname();
 
   const router = useRouter();
   const handleClick = (e: React.MouseEvent) => {
@@ -21,6 +22,10 @@ export default function Navbar() {
       e.preventDefault(); // stop default link behavior
       router.push("/auth/signin");
     }
+  };
+
+  const isActiveLink = (href: string) => {
+    return pathname === href;
   };
 
   return (
@@ -43,7 +48,11 @@ export default function Navbar() {
             <NavigationMenuItem>
               <Link
                 href="/"
-                className={`${navigationMenuTriggerStyle()} bg-transparent text-green-700 hover:bg-green-100 hover:text-green-700 rounded-xl text-sm lg:text-base`}
+                className={`${navigationMenuTriggerStyle()} ${
+                  isActiveLink("/") 
+                    ? "bg-green-100 text-green-800" 
+                    : "bg-transparent text-green-700 hover:bg-green-100"
+                } rounded-xl text-sm lg:text-base transition-colors`}
               >
                 Home
               </Link>
@@ -52,7 +61,11 @@ export default function Navbar() {
               <Link
                 href="/planner"
                 onClick={handleClick}
-                className={`${navigationMenuTriggerStyle()} bg-transparent text-green-700 hover:bg-green-100 hover:text-green-700 rounded-xl text-sm lg:text-base`}
+                className={`${navigationMenuTriggerStyle()} ${
+                  isActiveLink("/planner") 
+                    ? "bg-green-100 text-green-800" 
+                    : "bg-transparent text-green-700 hover:bg-green-100"
+                } rounded-xl text-sm lg:text-base transition-colors`}
               >
                 Planner
               </Link>
@@ -60,7 +73,11 @@ export default function Navbar() {
             <NavigationMenuItem>
               <Link
                 href="/insights"
-                className={`${navigationMenuTriggerStyle()} bg-transparent text-green-700 hover:bg-green-100 hover:text-green-700 rounded-xl text-sm lg:text-base`}
+                className={`${navigationMenuTriggerStyle()} ${
+                  isActiveLink("/insights") 
+                    ? "bg-green-100 text-green-800" 
+                    : "bg-transparent text-green-700 hover:bg-green-100"
+                } rounded-xl text-sm lg:text-base transition-colors`}
               >
                 Insights
               </Link>
@@ -123,13 +140,37 @@ export default function Navbar() {
             </div>
           )}
           
-          <Link href="/" onClick={() => setIsOpen(false)} className="w-full text-green-700 px-4 py-3 rounded-xl hover:bg-green-100 text-base">
+          <Link 
+            href="/" 
+            onClick={() => setIsOpen(false)} 
+            className={`w-full px-4 py-3 rounded-xl text-base ${
+              isActiveLink("/") 
+                ? "bg-green-200 text-green-800" 
+                : "text-green-700 hover:bg-green-100"
+            }`}
+          >
             Home
           </Link>
-          <Link href="/planner" onClick={() => setIsOpen(false)} className="w-full text-green-700 px-4 py-3 rounded-xl hover:bg-green-100 text-base">
+          <Link 
+            href="/planner" 
+            onClick={() => setIsOpen(false)} 
+            className={`w-full px-4 py-3 rounded-xl text-base ${
+              isActiveLink("/planner") 
+                ? "bg-green-200 text-green-800" 
+                : "text-green-700 hover:bg-green-100"
+            }`}
+          >
             Planner
           </Link>
-          <Link href="/insights" onClick={() => setIsOpen(false)} className="w-full text-green-700 px-4 py-3 rounded-xl hover:bg-green-100 text-base">
+          <Link 
+            href="/insights" 
+            onClick={() => setIsOpen(false)} 
+            className={`w-full px-4 py-3 rounded-xl text-base ${
+              isActiveLink("/insights") 
+                ? "bg-green-200 text-green-800" 
+                : "text-green-700 hover:bg-green-100"
+            }`}
+          >
             Insights
           </Link>
           
