@@ -1,4 +1,3 @@
-// components/planner/Goals.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -214,11 +213,11 @@ export default function GoalsPage() {
 
   const getGoalTypeColor = (type: string) => {
     switch (type) {
-      case "weight_loss": return "bg-blue-100 text-blue-800";
-      case "muscle_gain": return "bg-green-100 text-green-800";
-      case "fitness": return "bg-purple-100 text-purple-800";
-      case "nutrition": return "bg-orange-100 text-orange-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "weight_loss": return "bg-blue-100 text-blue-800 border-blue-200";
+      case "muscle_gain": return "bg-green-100 text-green-800 border-green-200";
+      case "fitness": return "bg-purple-100 text-purple-800 border-purple-200";
+      case "nutrition": return "bg-orange-100 text-orange-800 border-orange-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -237,103 +236,105 @@ export default function GoalsPage() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto p-3 sm:p-4">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-green-800 flex items-center justify-center gap-2">
-          <Target className="w-8 h-8" />
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-green-800 flex items-center justify-center gap-2">
+          <Target className="w-6 h-6 sm:w-8 sm:h-8" />
           My Goals
         </h2>
-        <p className="text-gray-600 mt-2">
+        <p className="text-gray-600 mt-2 text-sm sm:text-base">
           Set and track your fitness and nutrition goals, {session?.user?.name || "User"}
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardContent className="p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <Card className="bg-linear-to-br from-green-50 to-emerald-50 border-green-200 shadow-sm">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Goals</p>
                 <p className="text-2xl font-bold text-green-800">{goals.length}</p>
               </div>
-              <Target className="w-8 h-8 text-green-600" />
+              <Target className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-6">
+        <Card className="bg-linear-to-br from-blue-50 to-cyan-50 border-blue-200 shadow-sm">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Completed</p>
                 <p className="text-2xl font-bold text-blue-800">{completedGoals.length}</p>
               </div>
-              <CheckCircle2 className="w-8 h-8 text-blue-600" />
+              <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-6">
+        <Card className="bg-linear-to-br from-orange-50 to-amber-50 border-orange-200 shadow-sm">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">In Progress</p>
                 <p className="text-2xl font-bold text-orange-800">{activeGoals.length}</p>
               </div>
-              <Clock className="w-8 h-8 text-orange-600" />
+              <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Refresh Button */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 mb-6">
         <h3 className="text-xl font-semibold text-green-800">My Goals</h3>
         <div className="flex gap-2">
           <Button
             onClick={loadGoals}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50"
           >
             <RefreshCw className="w-4 h-4" />
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </Button>
           <Button
             onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 shadow-md hover:shadow-lg transition-all"
           >
             <Plus className="w-4 h-4" />
-            Add Goal
+            <span className="hidden sm:inline">Add Goal</span>
+            <span className="sm:hidden">Add</span>
           </Button>
         </div>
       </div>
 
       {/* Add Goal Form */}
       {isAdding && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <Card className="mb-6 border-green-200 shadow-lg">
+          <CardHeader className="bg-linear-to-r from-green-50 to-emerald-50 border-b border-green-200">
+            <CardTitle className="flex items-center gap-2 text-green-800">
               <Plus className="w-5 h-5" />
               Add New Goal
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-4 sm:p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Goal Title</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Goal Title</label>
                 <Input
                   value={newGoal.title}
                   onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
                   placeholder="e.g., Lose 5kg"
+                  className="border-green-200 focus:border-green-500"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Goal Type</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Goal Type</label>
                 <Select
                   value={newGoal.type}
                   onValueChange={(value) => setNewGoal({ ...newGoal, type: value as any })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-green-200 focus:border-green-500">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -348,40 +349,43 @@ export default function GoalsPage() {
             </div>
             
             <div>
-              <label className="text-sm font-medium text-gray-700">Description</label>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Description</label>
               <Textarea
                 value={newGoal.description}
                 onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
                 placeholder="Describe your goal..."
+                className="border-green-200 focus:border-green-500 min-h-20"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Current</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Current</label>
                 <Input
                   type="number"
                   value={newGoal.currentValue}
                   onChange={(e) => setNewGoal({ ...newGoal, currentValue: Number(e.target.value) })}
                   placeholder="e.g., 80"
+                  className="border-green-200 focus:border-green-500"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Target</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Target</label>
                 <Input
                   type="number"
                   value={newGoal.targetValue}
                   onChange={(e) => setNewGoal({ ...newGoal, targetValue: Number(e.target.value) })}
                   placeholder="e.g., 75"
+                  className="border-green-200 focus:border-green-500"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Unit</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Unit</label>
                 <Select
                   value={newGoal.unit}
                   onValueChange={(value) => setNewGoal({ ...newGoal, unit: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-green-200 focus:border-green-500">
                     <SelectValue placeholder="Unit" />
                   </SelectTrigger>
                   <SelectContent>
@@ -395,20 +399,21 @@ export default function GoalsPage() {
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Deadline</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Deadline</label>
                 <Input
                   type="date"
                   value={newGoal.deadline}
                   onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
+                  className="border-green-200 focus:border-green-500"
                 />
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={handleAddGoal} className="bg-green-600 hover:bg-green-700">
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              <Button onClick={handleAddGoal} className="bg-green-600 hover:bg-green-700 shadow-md">
                 Add Goal
               </Button>
-              <Button variant="outline" onClick={() => setIsAdding(false)}>
+              <Button variant="outline" onClick={() => setIsAdding(false)} className="border-green-200 text-green-700 hover:bg-green-50">
                 Cancel
               </Button>
             </div>
@@ -420,24 +425,32 @@ export default function GoalsPage() {
       <div className="space-y-4 mb-8">
         <h4 className="text-lg font-semibold text-green-800">Active Goals</h4>
         {activeGoals.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-8">
-              <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No active goals. Add one to get started!</p>
+          <Card className="border-green-200 shadow-sm">
+            <CardContent className="text-center py-8 sm:py-12">
+              <Target className="w-12 h-12 sm:w-16 sm:h-16 text-green-300 mx-auto mb-4" />
+              <p className="text-gray-500 text-base sm:text-lg mb-2">No active goals yet</p>
+              <p className="text-gray-400 text-sm mb-4">Add your first goal to start tracking your progress</p>
+              <Button 
+                onClick={() => setIsAdding(true)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create Your First Goal
+              </Button>
             </CardContent>
           </Card>
         ) : (
           activeGoals.map((goal) => (
-            <Card key={goal.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <Card key={goal.id} className="border-green-200 hover:shadow-lg transition-all duration-300 hover:border-green-300">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                         <h4 className="text-lg font-semibold text-green-800">
                           {goal.title}
                         </h4>
-                        <Badge className={getGoalTypeColor(goal.type)}>
+                        <Badge className={`${getGoalTypeColor(goal.type)} border`}>
                           {formatGoalType(goal.type)}
                         </Badge>
                       </div>
@@ -446,10 +459,10 @@ export default function GoalsPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleCompleteGoal(goal.id)}
-                          className="flex items-center gap-1"
+                          className="flex items-center gap-1 border-green-200 text-green-700 hover:bg-green-50"
                         >
                           <CheckCircle2 className="w-4 h-4" />
-                          Complete
+                          <span className="hidden sm:inline">Complete</span>
                         </Button>
                         <Button
                           variant="outline"
@@ -459,7 +472,7 @@ export default function GoalsPage() {
                             setIsAdding(true);
                             handleDeleteGoal(goal.id);
                           }}
-                          className="flex items-center gap-1"
+                          className="flex items-center gap-1 border-blue-200 text-blue-700 hover:bg-blue-50"
                         >
                           <Edit3 className="w-4 h-4" />
                         </Button>
@@ -467,21 +480,21 @@ export default function GoalsPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleDeleteGoal(goal.id)}
-                          className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                          className="flex items-center gap-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
 
-                    <p className="text-gray-600 mb-4">{goal.description}</p>
+                    <p className="text-gray-600 mb-4 leading-relaxed">{goal.description}</p>
 
-                    <div className="flex items-center gap-6 text-sm text-gray-600 mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-sm text-gray-600 mb-3">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
                         Deadline: {new Date(goal.deadline).toLocaleDateString()}
                         {getDaysRemaining(goal.deadline) > 0 && (
-                          <span className="text-orange-600 ml-1">
+                          <span className="text-orange-600 ml-1 font-medium">
                             ({getDaysRemaining(goal.deadline)} days left)
                           </span>
                         )}
@@ -492,10 +505,10 @@ export default function GoalsPage() {
                       </div>
                     </div>
 
-                    <Progress value={goal.progress} className="h-2" />
-                    <div className="flex justify-between text-sm text-gray-600 mt-1">
-                      <span>{goal.progress}% complete</span>
-                      <span>
+                    <Progress value={goal.progress} className="h-2 sm:h-3 bg-green-100" />
+                    <div className="flex justify-between text-sm text-gray-600 mt-2">
+                      <span className="font-medium">{goal.progress}% complete</span>
+                      <span className={goal.progress >= 100 ? "text-green-600 font-semibold" : "text-orange-600"}>
                         {goal.progress < 100 ? `${Math.round(goal.targetValue - goal.currentValue)}${goal.unit} to go` : 'Goal achieved!'}
                       </span>
                     </div>
@@ -512,11 +525,11 @@ export default function GoalsPage() {
         <div className="space-y-4">
           <h4 className="text-lg font-semibold text-green-800">Completed Goals</h4>
           {completedGoals.map((goal) => (
-            <Card key={goal.id} className="bg-gray-50 border-green-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+            <Card key={goal.id} className="bg-linear-to-r from-green-50 to-emerald-50 border-green-200 shadow-sm">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <CheckCircle2 className="w-6 h-6 text-green-600 shrink-0" />
                     <div>
                       <h5 className="font-semibold text-green-800 line-through">
                         {goal.title}
@@ -524,7 +537,7 @@ export default function GoalsPage() {
                       <p className="text-sm text-gray-600">{goal.description}</p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="bg-green-100 text-green-800">
+                  <Badge className="bg-green-100 text-green-800 border-green-200 mt-2 sm:mt-0 self-start sm:self-auto">
                     Completed
                   </Badge>
                 </div>
