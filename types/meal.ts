@@ -29,3 +29,17 @@ export interface MealPlan {
   totalNutrients: NutrientInfo;
   tip: string;
 }
+
+export interface InsightData {
+  totalPlans: number;
+  totalMeals: number;
+  favoriteMeals: number;
+  completedGoals: number;
+  activeGoals: number;
+  averageCalories: number;
+  mostCommonGoal: string;
+  dietaryPreferences: { [key: string]: number };
+  mealTimeDistribution: { [key: string]: number };
+  weeklyProgress: number;
+  streak: number;
+}
