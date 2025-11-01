@@ -15,11 +15,27 @@ import hero3 from "@/public/images/herobg.png";
 import hero2 from "@/public/images/Hero_food.png";
 import hero from "@/public/images/hero3.png";
 import missionImage from "@/public/images/Lucid_Origin_Healthy_food_meal_planning_concept_fresh_vegetabl_2.jpg";
-import { Leaf } from "lucide-react";
+import {
+  Leaf,
+  TrendingUp,
+  Users,
+  BookOpen,
+  Lightbulb,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import {
+  insightStats,
+  successStories,
+  nutritionTips,
+  researchReports,
+  userProgressData,
+} from "@/data/insights_data";
+import { useState } from "react";
 
 export default function HomePage() {
-    const { data: session } = useSession();
-  
+  const { data: session } = useSession();
+
   const router = useRouter();
   const handleClick = (e: React.MouseEvent) => {
     if (session) {
@@ -27,6 +43,20 @@ export default function HomePage() {
     } else {
       router.push("/auth/signin");
     }
+  };
+
+  const [expandedSections, setExpandedSections] = useState({
+    successStories: false,
+    nutritionTips: false,
+    researchReports: false,
+    progressTrends: false,
+  });
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
   };
 
   return (
@@ -206,6 +236,283 @@ export default function HomePage() {
                 plans, automated grocery lists, and continuous nutritional
                 guidance right at your fingertips.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Insights Section - Directly written here */}
+      <section className="w-full py-20 bg-linear-to-br from-white to-green-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Data-Driven Insights & Success Stories
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Discover real results, evidence-based research, and smart
+                nutrition strategies backed by AI analysis
+              </p>
+            </div>
+
+            {/* Statistics Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+              {insightStats.map((stat, index) => (
+                <div
+                  key={index}
+                  className="text-center p-6 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow"
+                >
+                  <div className="text-2xl md:text-3xl font-bold text-green-700 mb-2">
+                    {stat.number}
+                  </div>
+                  <div className="text-sm text-gray-600 font-medium">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="grid lg:grid-cols-2 gap-8 mb-12">
+              {/* Success Stories */}
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-6 h-6 text-green-700" />
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      Success Stories
+                    </h3>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {successStories
+                    .slice(
+                      0,
+                      expandedSections.successStories
+                        ? successStories.length
+                        : 2
+                    )
+                    .map((story, index) => (
+                      <div
+                        key={index}
+                        className="border-l-4 border-green-500 pl-4 py-2"
+                      >
+                        <div className="font-semibold text-gray-800 text-lg">
+                          {story.name}
+                        </div>
+                        <div className="text-green-700 text-sm font-medium mb-2">
+                          {story.achievement}
+                        </div>
+                        <div className="text-gray-600 text-sm leading-relaxed">
+                          {story.story}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                {successStories.length > 2 && (
+                  <div className="mt-6 text-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-green-700 border-green-700 hover:bg-green-50"
+                      onClick={() => toggleSection("successStories")}
+                    >
+                      {expandedSections.successStories ? (
+                        <>
+                          <ChevronUp className="w-4 h-4 mr-2" />
+                          View Less
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4 mr-2" />
+                          View More Stories
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Smart Nutrition Tips */}
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <Lightbulb className="w-6 h-6 text-green-700" />
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      Smart Nutrition Tips
+                    </h3>
+                  </div>
+                </div>
+                <div className="grid gap-4">
+                  {nutritionTips
+                    .slice(
+                      0,
+                      expandedSections.nutritionTips ? nutritionTips.length : 3
+                    )
+                    .map((tip) => (
+                      <div
+                        key={tip.id}
+                        className="flex items-start gap-3 p-3 bg-green-50 rounded-lg"
+                      >
+                        <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shrink-0"></div>
+                        <div>
+                          <span className="text-gray-700 text-sm leading-relaxed">
+                            {tip.tip}
+                          </span>
+                          <div className="text-xs text-green-700 font-medium mt-1">
+                            {tip.category}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                {nutritionTips.length > 3 && (
+                  <div className="mt-6 text-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-green-700 border-green-700 hover:bg-green-50"
+                      onClick={() => toggleSection("nutritionTips")}
+                    >
+                      {expandedSections.nutritionTips ? (
+                        <>
+                          <ChevronUp className="w-4 h-4 mr-2" />
+                          View Less
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4 mr-2" />
+                          View More Tips
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Research & Progress Section */}
+            <div className="grid lg:grid-cols-2 gap-8 mb-12">
+              {/* Evidence-Based Research */}
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <BookOpen className="w-6 h-6 text-green-700" />
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      Evidence-Based Research
+                    </h3>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {researchReports
+                    .slice(
+                      0,
+                      expandedSections.researchReports
+                        ? researchReports.length
+                        : 2
+                    )
+                    .map((report, index) => (
+                      <div
+                        key={index}
+                        className="pb-4 border-b border-gray-100 last:border-b-0 last:pb-0"
+                      >
+                        <div className="font-semibold text-gray-800 mb-2">
+                          {report.title}
+                        </div>
+                        <div className="text-gray-600 text-sm mb-2 leading-relaxed">
+                          {report.summary}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Source: {report.source}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                {researchReports.length > 2 && (
+                  <div className="mt-6 text-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-green-700 border-green-700 hover:bg-green-50"
+                      onClick={() => toggleSection("researchReports")}
+                    >
+                      {expandedSections.researchReports ? (
+                        <>
+                          <ChevronUp className="w-4 h-4 mr-2" />
+                          View Less
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4 mr-2" />
+                          View More Research
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* User Progress Trends */}
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <TrendingUp className="w-6 h-6 text-green-700" />
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      User Progress Trends
+                    </h3>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {userProgressData
+                    .slice(
+                      0,
+                      expandedSections.progressTrends
+                        ? userProgressData.length
+                        : 3
+                    )
+                    .map((progress, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-3 bg-blue-50 rounded-lg"
+                      >
+                        <div>
+                          <div className="font-medium text-gray-800">
+                            {progress.period}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {progress.metric}
+                          </div>
+                        </div>
+                        <div className="text-lg font-bold text-green-700">
+                          {progress.improvement}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                {userProgressData.length > 3 && (
+                  <div className="mt-6 text-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-green-700 border-green-700 hover:bg-green-50"
+                      onClick={() => toggleSection("progressTrends")}
+                    >
+                      {expandedSections.progressTrends ? (
+                        <>
+                          <ChevronUp className="w-4 h-4 mr-2" />
+                          View Less
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4 mr-2" />
+                          View More Trends
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

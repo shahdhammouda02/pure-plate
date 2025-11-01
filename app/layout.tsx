@@ -29,11 +29,14 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-slate-900 min-h-screen flex flex-col`}
+        suppressHydrationWarning={true}
       >
         <Providers>
-        <Navbar />
-        <main className="flex min-h-[calc(100vh-64px)] w-full">{children}</main>
-        <Footer />
+          <Navbar />
+          <main className="flex min-h-[calc(100vh-64px)] w-full">
+            {children}
+          </main>
+          <Footer />
         </Providers>
       </body>
     </html>
