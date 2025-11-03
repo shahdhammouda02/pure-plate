@@ -153,13 +153,13 @@ export default function PlannerPage() {
 
       {/* Sidebar + Main Content */}
       <div className="flex h-screen overflow-hidden relative z-0">
-        {/* Mobile Sidebar Overlay */}
-        {isMobile && sidebarOpen && (
+        {/* REMOVED: Mobile Sidebar Overlay - This was causing the black screen */}
+        {/* {isMobile && sidebarOpen && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={() => setSidebarOpen(false)}
           />
-        )}
+        )} */}
 
         {/* Sidebar */}
         <div className={`

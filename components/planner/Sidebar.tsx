@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import {
   Sidebar,
@@ -24,13 +24,21 @@ interface PlannerSidebarProps {
 }
 
 const PlannerSidebar: FC<PlannerSidebarProps> = ({
-  activeSection = "generate", // Default to "generate"
+  activeSection = "generate",
   setActiveSection,
   onMobileClose,
   onToggle,
 }) => {
   const [isOpen, setIsOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const { data: session } = useSession();
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const menuItems = [
     { key: "generate", label: "Generate Plan", icon: List },
@@ -51,16 +59,22 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
     const newState = !isOpen;
     setIsOpen(newState);
     if (onToggle) {
-      onToggle(!newState); // Send collapsed state to parent
+      onToggle(!newState);
     }
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider 
+      defaultOpen={true}
+      // منع الـ overlay التلقائي في الشاشات الصغيرة
+      open={isMobile ? false : undefined}
+    >
       <Sidebar
         className={`transition-all duration-300 relative h-full bg-green-50 ${
           isOpen ? "w-64" : "w-16"
         }`}
+        // إيقاف السلوك التلقائي للشاشات الصغيرة
+        collapsible={isMobile ? "none" : "offcanvas"}
       >
         <SidebarHeader>
           <div className="flex justify-between items-center p-4">
@@ -97,8 +111,8 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
                       isOpen ? "text-base md:text-lg" : "justify-center"
                     } ${
                       isActive
-                        ? "bg-green-100 text-green-800" // Active state with background
-                        : "text-green-600 hover:bg-green-100" // Hover state
+                        ? "bg-green-100 text-green-800"
+                        : "text-green-600 hover:bg-green-100"
                     }`}
                   >
                     <Icon className="w-5 h-5 shrink-0" />
