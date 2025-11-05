@@ -209,7 +209,6 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
                   <SelectItem value="vegan">Vegan</SelectItem>
                   <SelectItem value="vegetarian">Vegetarian</SelectItem>
                   <SelectItem value="pescatarian">Pescatarian</SelectItem>
-                  <SelectItem value="none">No Restrictions</SelectItem>
                 </SelectContent>
               </Select>
               {errors.dietaryPreference && (

@@ -97,8 +97,17 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
           </div>
         </SidebarHeader>
 
-        <SidebarContent>
-          <SidebarMenu className="mt-4 space-y-2 md:space-y-5 px-2 md:px-5">
+        <SidebarContent className="shadow-lg">
+          {/* إضافة Hello, user للشاشات الصغيرة عندما يكون السايدبار مفتوح */}
+          {isMobile && isOpen && (
+            <div className="px-4 pb-4 border-b border-green-200">
+              <h2 className="text-lg font-bold text-green-700">
+                Hello, {session?.user?.name?.split(" ")[0] || "Guest"}
+              </h2>
+            </div>
+          )}
+
+          <SidebarMenu className="mt-4 space-y-2 md:space-y-5 px-2 md:px-5 mb-4">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.key;
