@@ -153,7 +153,10 @@ export default function Navbar() {
           </Link>
           <Link 
             href="/planner" 
-            onClick={() => setIsOpen(false)} 
+            onClick={(e) => {
+              handleClick(e);
+              setIsOpen(false);
+            }}
             className={`w-full px-4 py-3 rounded-xl text-base ${
               isActiveLink("/planner") 
                 ? "bg-green-200 text-green-800" 
