@@ -81,7 +81,12 @@ class EdamamService {
       const data: EdamamSearchResponse = await response.json();
       return data.hints || [];
     } catch (error) {
-      console.error("Error searching foods:", error);
+      console.error("Edamam API Error:", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        query: query,
+        timestamp: new Date().toISOString(),
+        requestCount: this.requestCount,
+      });
       return [];
     }
   }
