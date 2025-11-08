@@ -1,4 +1,3 @@
-// components/planner/History.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -283,7 +282,6 @@ Expert Tip: ${plan.tip}
 
   return (
     <div className="w-full max-w-4xl mx-auto p-3 sm:p-4">
-      {/* Header */}
       <div className="text-center mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-bold text-green-800 flex items-center justify-center gap-2">
           <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />

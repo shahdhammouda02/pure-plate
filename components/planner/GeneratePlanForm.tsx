@@ -62,8 +62,7 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
   const watchedValues = watch();
 
   return (
-    <div className="w-full max-w-4xl mx-auto pb-12"> {/* Added pb-12 for bottom spacing */}
-      {/* Header */}
+    <div className="w-full max-w-4xl mx-auto pb-12">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold mb-2 text-green-800">
           Generate Your Personalized Plan,{" "}
@@ -74,7 +73,6 @@ export default function GeneratePlanForm({ onPlanGenerated }: GeneratePlanFormPr
         </p>
       </div>
 
-      {/* Form without scroll - using browser's natural scroll */}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-green-50 rounded-xl shadow-lg p-6 space-y-6 border border-gray-200"

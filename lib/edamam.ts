@@ -1,5 +1,3 @@
-// lib/edamam.ts
-
 export interface EdamamFood {
   food: {
     label: string;

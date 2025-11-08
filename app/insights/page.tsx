@@ -1,4 +1,3 @@
-// components/Insights.tsx
 "use client";
 
 import { useState, useEffect } from "react";

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,6 @@ import {
   CheckCircle2,
   Clock,
   Calendar,
-  User,
   RefreshCw
 } from "lucide-react";
 import {
@@ -181,22 +180,6 @@ export default function GoalsPage() {
     setIsAdding(false);
   };
 
-  const handleUpdateGoal = (id: string, updates: Partial<Goal>) => {
-    const updatedGoals = goals.map(goal => {
-      if (goal.id === id) {
-        const updated = { ...goal, ...updates };
-        // Recalculate progress if currentValue or targetValue changed
-        if (updates.currentValue !== undefined || updates.targetValue !== undefined) {
-          updated.progress = Math.min(100, Math.round((updated.currentValue / updated.targetValue) * 100));
-        }
-        return updated;
-      }
-      return goal;
-    });
-    setGoals(updatedGoals);
-    localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
-  };
-
   const handleDeleteGoal = (id: string) => {
     const updatedGoals = goals.filter(goal => goal.id !== id);
     setGoals(updatedGoals);
@@ -237,7 +220,6 @@ export default function GoalsPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-3 sm:p-4">
-      {/* Header */}
       <div className="text-center mb-6 sm:mb-8">
         <h2 className="text-2xl sm:text-3xl font-bold text-green-800 flex items-center justify-center gap-2">
           <Target className="w-6 h-6 sm:w-8 sm:h-8" />

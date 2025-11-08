@@ -66,14 +66,14 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
   return (
     <SidebarProvider 
       defaultOpen={true}
-      // منع الـ overlay التلقائي في الشاشات الصغيرة
+      // prevent overlay in mobile
       open={isMobile ? false : undefined}
     >
       <Sidebar
         className={`transition-all duration-300 relative h-full bg-green-50 ${
           isOpen ? "w-64" : "w-16"
         }`}
-        // إيقاف السلوك التلقائي للشاشات الصغيرة
+        // prevent automatic behavior on small screens
         collapsible={isMobile ? "none" : "offcanvas"}
       >
         <SidebarHeader>
@@ -98,7 +98,6 @@ const PlannerSidebar: FC<PlannerSidebarProps> = ({
         </SidebarHeader>
 
         <SidebarContent className="shadow-lg">
-          {/* إضافة Hello, user للشاشات الصغيرة عندما يكون السايدبار مفتوح */}
           {isMobile && isOpen && (
             <div className="px-4 pb-4 border-b border-green-200">
               <h2 className="text-lg font-bold text-green-700">

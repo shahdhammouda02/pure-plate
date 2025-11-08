@@ -139,7 +139,6 @@ export default function PlannerPage() {
 
   return (
     <div className="relative min-h-screen w-full">
-      {/* Background Image + Blur */}
       <div className="absolute top-0 left-0 w-full h-full -z-10">
         <Image
           src={plan}
@@ -153,13 +152,6 @@ export default function PlannerPage() {
 
       {/* Sidebar + Main Content */}
       <div className="flex h-screen overflow-hidden relative z-0">
-        {/* REMOVED: Mobile Sidebar Overlay - This was causing the black screen */}
-        {/* {isMobile && sidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )} */}
 
         {/* Sidebar */}
         <div className={`

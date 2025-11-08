@@ -1,4 +1,3 @@
-// app/api/generate-meal/route.ts
 import { edamamService } from '@/lib/edamam';
 import { NextResponse } from 'next/server';
 
@@ -18,7 +17,7 @@ const tips = [
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { mealsPerDay, dietaryPreference, goal, activityLevel, ingredients } = body;
+    const { mealsPerDay, dietaryPreference, ingredients } = body;
 
     // Use a simpler approach - generate meals without overwhelming the API
     const mealTimes = getMealTimes(mealsPerDay);

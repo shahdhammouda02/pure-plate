@@ -1,4 +1,3 @@
-// data/meals.ts
 import { Meal, UserInput } from "@/types/meal";
 
 export const MEAL_DATABASE: Meal[] = [

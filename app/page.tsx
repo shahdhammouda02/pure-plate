@@ -63,12 +63,11 @@ export default function HomePage() {
     <div className="w-full">
       {/* Hero Section with Carousel */}
       <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden py-20 sm:py-16 md:py-20">
-        {/* Carousel for Hero Images */}
         <div className="absolute inset-0 -z-10">
           <Carousel
             plugins={[
               Autoplay({
-                delay: 2000,
+                delay: 1500,
                 stopOnInteraction: false,
               }),
             ]}
@@ -136,7 +135,6 @@ export default function HomePage() {
 
       {/* Our Mission Section */}
       <section className="relative w-full py-20 sm:py-16 md:py-20 overflow-hidden bg-green-50/40">
-        {/* Image on the Right — full height and attached to right edge */}
         <div className="absolute top-0 right-0 bottom-0 w-1/2 lg:block hidden sm:hidden">
           <Image
             src={missionImage}
@@ -204,7 +202,6 @@ export default function HomePage() {
                 Most people struggle with maintaining a healthy diet because of:
               </p>
 
-              {/* FIX: use items-center on ul but remove justify-center on li */}
               <ul className="text-lg text-gray-700 space-y-5 flex flex-col items-center">
                 {[
                   "Overwhelming nutrition information and conflicting advice",
@@ -245,7 +242,6 @@ export default function HomePage() {
       <section className="w-full py-20 bg-linear-to-br from-white to-green-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            {/* Header */}
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 hover:text-green-700 transition-colors duration-300">
                 Data-Driven Insights & Success Stories
@@ -394,7 +390,6 @@ export default function HomePage() {
 
             {/* Research & Progress Section */}
             <div className="grid lg:grid-cols-2 gap-8 mb-12">
-              {/* Evidence-Based Research */}
               <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-300">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">

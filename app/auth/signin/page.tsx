@@ -24,12 +24,12 @@ export default function SignInPage() {
 
   const [loading, setLoading] = useState(false);
 
-  // ✅ Keep your Google sign-in logic untouched
+  // Keep Google sign-in logic untouched
   const handleGoogleSignIn = async () => {
     await signIn("google", { callbackUrl: "/planner" });
   };
 
-  // ✅ Handle real email/password sign-in
+  // Handle real email/password sign-in
   const onSubmit = async (data: FormValues) => {
     setLoading(true);
     const res = await signIn("credentials", {
@@ -50,7 +50,6 @@ export default function SignInPage() {
 
   return (
     <div className="container mx-auto flex flex-col lg:flex-row items-center justify-center min-h-screen py-8 px-4 sm:py-12 sm:px-6 lg:px-10 lg:py-12">
-      {/* Background image for mobile */}
       <div className="lg:hidden fixed inset-0 -z-10">
         <Image
           src={image}
@@ -105,7 +104,6 @@ export default function SignInPage() {
           onSubmit={handleSubmit(onSubmit)}
           className="w-full max-w-xs sm:max-w-sm lg:max-w-md bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg space-y-4 sm:space-y-5 border border-gray-200"
         >
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Email
@@ -125,7 +123,6 @@ export default function SignInPage() {
             )}
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Password
@@ -145,7 +142,6 @@ export default function SignInPage() {
             )}
           </div>
 
-          {/* Remember me & Forgot password */}
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
@@ -162,7 +158,6 @@ export default function SignInPage() {
             </a>
           </div>
 
-          {/* Login Button */}
           <Button
             type="submit"
             disabled={loading}
@@ -180,7 +175,7 @@ export default function SignInPage() {
             <div className="grow border-t border-gray-300"></div>
           </div>
 
-          {/* Google Sign-In Button */}
+          {/* Google Sign-In */}
           <Button
             type="button"
             onClick={handleGoogleSignIn}
