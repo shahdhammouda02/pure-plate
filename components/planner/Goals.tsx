@@ -15,7 +15,9 @@ import {
   CheckCircle2,
   Clock,
   Calendar,
-  RefreshCw
+  RefreshCw,
+  TrendingUp,
+  TrendingDown
 } from "lucide-react";
 import {
   Select,
@@ -44,6 +46,50 @@ const formatGoalName = (goal: string) => {
   return goal.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
+const calculateProgress = (goal: Partial<Goal>): number => {
+  if (!goal.currentValue || !goal.targetValue) return 0;
+  
+  const current = goal.currentValue;
+  const target = goal.targetValue;
+  
+  switch (goal.type) {
+    case "weight_loss":
+      const startWeight = Math.max(current, target + 10);
+      if (current <= target) return 100;
+      return Math.max(0, Math.min(100, ((startWeight - current) / (startWeight - target)) * 100));
+    
+    case "muscle_gain":
+      const startMuscle = Math.min(current, target - 5);
+      if (current >= target) return 100;
+      return Math.max(0, Math.min(100, ((current - startMuscle) / (target - startMuscle)) * 100));
+    
+    case "fitness":
+    case "nutrition":
+    case "other":
+    default:
+      if (current >= target) return 100;
+      return Math.max(0, Math.min(100, (current / target) * 100));
+  }
+};
+
+const validateGoalValues = (goal: Partial<Goal>): boolean => {
+  if (!goal.currentValue || !goal.targetValue) return false;
+  
+  const current = goal.currentValue;
+  const target = goal.targetValue;
+  
+  switch (goal.type) {
+    case "weight_loss":
+      return current > target && target > 0;
+    
+    case "muscle_gain":
+      return current < target && current > 0;
+    
+    default:
+      return current >= 0 && target > 0;
+  }
+};
+
 export default function GoalsPage() {
   const { data: session } = useSession();
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -69,8 +115,12 @@ export default function GoalsPage() {
     if (saved) {
       try {
         const parsedGoals = JSON.parse(saved);
-        setGoals(parsedGoals);
-        console.log('Loaded goals:', parsedGoals.length);
+        const updatedGoals = parsedGoals.map((goal: Goal) => ({
+          ...goal,
+          progress: calculateProgress(goal)
+        }));
+        setGoals(updatedGoals);
+        console.log('Loaded goals:', updatedGoals.length);
       } catch (error) {
         console.error('Error loading goals:', error);
         setGoals([]);
@@ -115,12 +165,16 @@ export default function GoalsPage() {
           title: `${formatGoalName(userInput.goal)} Goal`,
           description: `Achieve your ${userInput.goal.replace('_', ' ')} goal through personalized meal planning and exercise`,
           type: userInput.goal as any,
-          targetValue: userInput.goal === 'weight_loss' ? userInput.weight - 5 : 
-                      userInput.goal === 'muscle_gain' ? userInput.weight + 5 : userInput.weight,
+          targetValue: userInput.goal === 'weight_loss' ? Math.max(50, userInput.weight - 5) : 
+                      userInput.goal === 'muscle_gain' ? userInput.weight + 3 : userInput.weight,
           currentValue: userInput.weight,
           unit: "kg",
           deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          progress: 0,
+          progress: calculateProgress({
+            type: userInput.goal,
+            currentValue: userInput.weight,
+            targetValue: userInput.goal === 'weight_loss' ? Math.max(50, userInput.weight - 5) : userInput.weight + 3
+          }),
           createdAt: new Date().toISOString().split('T')[0],
           completed: false
         },
@@ -129,10 +183,10 @@ export default function GoalsPage() {
           title: `Follow ${userInput.mealsPerDay} Meals Daily`,
           description: `Maintain a consistent ${userInput.mealsPerDay}-meal daily eating schedule`,
           type: "nutrition",
-          targetValue: 30,
+          targetValue: 7,
           currentValue: 0,
           unit: "days",
-          deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           progress: 0,
           createdAt: new Date().toISOString().split('T')[0],
           completed: false
@@ -146,7 +200,17 @@ export default function GoalsPage() {
   };
 
   const handleAddGoal = () => {
-    if (!newGoal.title || !newGoal.targetValue) return;
+    if (!newGoal.title || !newGoal.targetValue || !newGoal.currentValue) {
+      alert("Please fill all required fields with valid values");
+      return;
+    }
+
+    if (!validateGoalValues(newGoal)) {
+      alert("Invalid values for this goal type. Please check your current and target values.");
+      return;
+    }
+
+    const progress = calculateProgress(newGoal);
 
     const goal: Goal = {
       id: Date.now().toString(),
@@ -154,19 +218,19 @@ export default function GoalsPage() {
       description: newGoal.description || "",
       type: newGoal.type as any,
       targetValue: newGoal.targetValue!,
-      currentValue: newGoal.currentValue || 0,
+      currentValue: newGoal.currentValue!,
       unit: newGoal.unit || "kg",
       deadline: newGoal.deadline!,
-      progress: newGoal.currentValue && newGoal.targetValue ? 
-        Math.min(100, Math.round((newGoal.currentValue / newGoal.targetValue) * 100)) : 0,
+      progress: progress,
       createdAt: new Date().toISOString().split('T')[0],
-      completed: false
+      completed: progress >= 100
     };
 
     const updatedGoals = [goal, ...goals];
     setGoals(updatedGoals);
     localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
     
+    // Reset form
     setNewGoal({
       title: "",
       description: "",
@@ -194,6 +258,25 @@ export default function GoalsPage() {
     localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
   };
 
+  const handleUpdateProgress = (id: string, newCurrentValue: number) => {
+    const updatedGoals = goals.map(goal => {
+      if (goal.id === id) {
+        const updatedGoal = {
+          ...goal,
+          currentValue: newCurrentValue,
+          progress: calculateProgress({ ...goal, currentValue: newCurrentValue })
+        };
+        return {
+          ...updatedGoal,
+          completed: updatedGoal.progress >= 100
+        };
+      }
+      return goal;
+    });
+    setGoals(updatedGoals);
+    localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+  };
+
   const getGoalTypeColor = (type: string) => {
     switch (type) {
       case "weight_loss": return "bg-blue-100 text-blue-800 border-blue-200";
@@ -206,6 +289,38 @@ export default function GoalsPage() {
 
   const formatGoalType = (type: string) => {
     return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
+  const getProgressDescription = (goal: Goal) => {
+    const remaining = goal.targetValue - goal.currentValue;
+    
+    switch (goal.type) {
+      case "weight_loss":
+        return remaining > 0 
+          ? `${Math.abs(remaining).toFixed(1)}${goal.unit} to lose` 
+          : 'Goal achieved!';
+      
+      case "muscle_gain":
+        return remaining > 0 
+          ? `${Math.abs(remaining).toFixed(1)}${goal.unit} to gain` 
+          : 'Goal achieved!';
+      
+      default:
+        return remaining > 0 
+          ? `${Math.abs(remaining).toFixed(1)}${goal.unit} to go` 
+          : 'Goal achieved!';
+    }
+  };
+
+  const getTrendIcon = (goal: Goal) => {
+    switch (goal.type) {
+      case "weight_loss":
+        return <TrendingDown className="w-4 h-4 text-blue-600" />;
+      case "muscle_gain":
+        return <TrendingUp className="w-4 h-4 text-green-600" />;
+      default:
+        return <Target className="w-4 h-4 text-gray-600" />;
+    }
   };
 
   const completedGoals = goals.filter(goal => goal.completed);
@@ -302,7 +417,7 @@ export default function GoalsPage() {
           <CardContent className="space-y-4 p-4 sm:p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">Goal Title</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Goal Title *</label>
                 <Input
                   value={newGoal.title}
                   onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
@@ -311,7 +426,7 @@ export default function GoalsPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">Goal Type</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Goal Type *</label>
                 <Select
                   value={newGoal.type}
                   onValueChange={(value) => setNewGoal({ ...newGoal, type: value as any })}
@@ -342,9 +457,10 @@ export default function GoalsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">Current</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Current Value *</label>
                 <Input
                   type="number"
+                  step="0.1"
                   value={newGoal.currentValue}
                   onChange={(e) => setNewGoal({ ...newGoal, currentValue: Number(e.target.value) })}
                   placeholder="e.g., 80"
@@ -352,9 +468,10 @@ export default function GoalsPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">Target</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Target Value *</label>
                 <Input
                   type="number"
+                  step="0.1"
                   value={newGoal.targetValue}
                   onChange={(e) => setNewGoal({ ...newGoal, targetValue: Number(e.target.value) })}
                   placeholder="e.g., 75"
@@ -362,7 +479,7 @@ export default function GoalsPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">Unit</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Unit *</label>
                 <Select
                   value={newGoal.unit}
                   onValueChange={(value) => setNewGoal({ ...newGoal, unit: value })}
@@ -377,11 +494,12 @@ export default function GoalsPage() {
                     <SelectItem value="cm">cm</SelectItem>
                     <SelectItem value="min">min</SelectItem>
                     <SelectItem value="days">days</SelectItem>
+                    <SelectItem value="%">%</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">Deadline</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Deadline *</label>
                 <Input
                   type="date"
                   value={newGoal.deadline}
@@ -390,6 +508,16 @@ export default function GoalsPage() {
                 />
               </div>
             </div>
+
+            {newGoal.currentValue && newGoal.targetValue && (
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2 text-blue-800 text-sm">
+                  <Target className="w-4 h-4" />
+                  <span>Estimated Progress: {calculateProgress(newGoal).toFixed(1)}%</span>
+                </div>
+                <Progress value={calculateProgress(newGoal)} className="h-2 mt-2 bg-blue-100" />
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <Button onClick={handleAddGoal} className="bg-green-600 hover:bg-green-700 shadow-md">
@@ -429,14 +557,28 @@ export default function GoalsPage() {
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-3">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        <h4 className="text-lg font-semibold text-green-800">
-                          {goal.title}
-                        </h4>
+                        <div className="flex items-center gap-2">
+                          {getTrendIcon(goal)}
+                          <h4 className="text-lg font-semibold text-green-800">
+                            {goal.title}
+                          </h4>
+                        </div>
                         <Badge className={`${getGoalTypeColor(goal.type)} border`}>
                           {formatGoalType(goal.type)}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 mr-2">
+                          <span className="text-sm text-gray-600">Update:</span>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            value={goal.currentValue}
+                            onChange={(e) => handleUpdateProgress(goal.id, Number(e.target.value))}
+                            className="w-20 h-8 text-sm border-gray-300"
+                          />
+                          <span className="text-sm text-gray-600">{goal.unit}</span>
+                        </div>
                         <Button
                           variant="outline"
                           size="sm"
@@ -489,9 +631,9 @@ export default function GoalsPage() {
 
                     <Progress value={goal.progress} className="h-2 sm:h-3 bg-green-100" />
                     <div className="flex justify-between text-sm text-gray-600 mt-2">
-                      <span className="font-medium">{goal.progress}% complete</span>
+                      <span className="font-medium">{goal.progress.toFixed(1)}% complete</span>
                       <span className={goal.progress >= 100 ? "text-green-600 font-semibold" : "text-orange-600"}>
-                        {goal.progress < 100 ? `${Math.round(goal.targetValue - goal.currentValue)}${goal.unit} to go` : 'Goal achieved!'}
+                        {getProgressDescription(goal)}
                       </span>
                     </div>
                   </div>
@@ -517,6 +659,9 @@ export default function GoalsPage() {
                         {goal.title}
                       </h5>
                       <p className="text-sm text-gray-600">{goal.description}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Completed: {new Date(goal.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                   <Badge className="bg-green-100 text-green-800 border-green-200 mt-2 sm:mt-0 self-start sm:self-auto">

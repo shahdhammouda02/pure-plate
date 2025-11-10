@@ -408,7 +408,7 @@ Generated on: ${new Date().toLocaleDateString()}
           size="sm"
           className="border-green-300 text-green-700 hover:bg-green-50 px-4 sm:px-6 py-2 text-xs sm:text-sm"
         >
-          Download PDF
+          Download Plan
         </Button>
       </div>
     </div>
