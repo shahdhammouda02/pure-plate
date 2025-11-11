@@ -31,12 +31,28 @@ import {
   researchReports,
   userProgressData,
 } from "@/data/insights_data";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function HomePage() {
   const { data: session } = useSession();
-
   const router = useRouter();
+  
+  const [expandedSections, setExpandedSections] = useState({
+    successStories: false,
+    nutritionTips: false,
+    researchReports: false,
+    progressTrends: false,
+  });
+
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+
+  // Refs for each section
+  const whatIsPurePlateRef = useRef(null);
+  const ourMissionRef = useRef(null);
+  const problemWeSolveRef = useRef(null);
+  const insightsRef = useRef(null);
+  const ctaRef = useRef(null);
+
   const handleClick = (e: React.MouseEvent) => {
     if (session) {
       router.push("/planner");
@@ -45,18 +61,68 @@ export default function HomePage() {
     }
   };
 
-  const [expandedSections, setExpandedSections] = useState({
-    successStories: false,
-    nutritionTips: false,
-    researchReports: false,
-    progressTrends: false,
-  });
-
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
+  };
+
+  // Intersection Observer for scroll animations - works on every scroll
+  useEffect(() => {
+    const sectionRefs = [
+      { ref: whatIsPurePlateRef, id: 'whatIsPurePlate' },
+      { ref: ourMissionRef, id: 'ourMission' },
+      { ref: problemWeSolveRef, id: 'problemWeSolve' },
+      { ref: insightsRef, id: 'insights' },
+      { ref: ctaRef, id: 'cta' }
+    ];
+
+    const observers: IntersectionObserver[] = [];
+    
+    const createObserver = (ref: any, sectionId: string) => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            // Add section to visible set when it enters viewport
+            setVisibleSections(prev => new Set(prev).add(sectionId));
+          } else {
+            // Remove section from visible set when it leaves viewport
+            setVisibleSections(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(sectionId);
+              return newSet;
+            });
+          }
+        },
+        {
+          threshold: 0.1, // Trigger when 10% of section is visible
+          rootMargin: '0px 0px -50px 0px' // Adjust trigger point
+        }
+      );
+      
+      if (ref.current) {
+        observer.observe(ref.current);
+        observers.push(observer);
+      }
+    };
+
+    // Create observers for all sections
+    sectionRefs.forEach(({ ref, id }) => {
+      createObserver(ref, id);
+    });
+
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, []);
+
+  // Animation classes - now checks if section is currently visible
+  const getAnimationClass = (sectionId: string) => {
+    const isVisible = visibleSections.has(sectionId);
+    return isVisible 
+      ? "opacity-100 translate-y-0 transition-all duration-700 ease-out"
+      : "opacity-0 translate-y-10 transition-all duration-500";
   };
 
   return (
@@ -115,9 +181,12 @@ export default function HomePage() {
       </section>
 
       {/* What is PurePlate Section */}
-      <section className="w-full py-20 sm:py-16 md:py-20 bg-white">
+      <section 
+        ref={whatIsPurePlateRef}
+        className="w-full py-20 sm:py-16 md:py-20 bg-white"
+      >
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className={`max-w-4xl mx-auto text-center ${getAnimationClass('whatIsPurePlate')}`}>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 hover:text-green-700 transition-colors duration-300">
               What is PurePlate?
             </h2>
@@ -134,7 +203,10 @@ export default function HomePage() {
       </section>
 
       {/* Our Mission Section */}
-      <section className="relative w-full py-20 sm:py-16 md:py-20 overflow-hidden bg-green-50/40">
+      <section 
+        ref={ourMissionRef}
+        className="relative w-full py-20 sm:py-16 md:py-20 overflow-hidden bg-green-50/40"
+      >
         <div className="absolute top-0 right-0 bottom-0 w-1/2 lg:block hidden sm:hidden">
           <Image
             src={missionImage}
@@ -146,7 +218,7 @@ export default function HomePage() {
 
         {/* Content */}
         <div className="relative container mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+          <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto ${getAnimationClass('ourMission')}`}>
             <div className="flex flex-col justify-center space-y-6 z-10 p-6 lg:p-8 lg:pl-0">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 sm:text-2xl hover:text-green-700 transition-colors duration-300">
                 Our Mission
@@ -190,9 +262,12 @@ export default function HomePage() {
       </section>
 
       {/* Problem We Solve Section */}
-      <section className="w-full py-20 sm:py-16 md:py-20 bg-white">
+      <section 
+        ref={problemWeSolveRef}
+        className="w-full py-20 sm:py-16 md:py-20 bg-white"
+      >
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+          <div className={`max-w-4xl mx-auto ${getAnimationClass('problemWeSolve')}`}>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center hover:text-green-700 transition-colors duration-300">
               The Problem We Solve
             </h2>
@@ -238,10 +313,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Insights Section - Directly written here */}
-      <section className="w-full py-20 bg-linear-to-br from-white to-green-50">
+      {/* Insights Section */}
+      <section 
+        ref={insightsRef}
+        className="w-full py-20 bg-linear-to-br from-white to-green-50"
+      >
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
+          <div className={`max-w-6xl mx-auto ${getAnimationClass('insights')}`}>
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 hover:text-green-700 transition-colors duration-300">
                 Data-Driven Insights & Success Stories
@@ -257,7 +335,8 @@ export default function HomePage() {
               {insightStats.map((stat, index) => (
                 <div
                   key={index}
-                  className="text-center p-6 bg-white rounded-lg shadow-sm border hover:shadow-lg hover:scale-105 hover:border-green-200 transition-all duration-300 cursor-pointer"
+                  className={`text-center p-6 bg-white rounded-lg shadow-sm border hover:shadow-lg hover:scale-105 hover:border-green-200 transition-all duration-300 cursor-pointer ${getAnimationClass('insights')}`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
                 >
                   <div className="text-2xl md:text-3xl font-bold text-green-700 mb-2 hover:text-green-800 transition-colors duration-300">
                     {stat.number}
@@ -272,7 +351,7 @@ export default function HomePage() {
             {/* Main Content Grid */}
             <div className="grid lg:grid-cols-2 gap-8 mb-12">
               {/* Success Stories */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-300">
+              <div className={`bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-300 ${getAnimationClass('insights')}`}>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <Users className="w-6 h-6 text-green-700 hover:scale-110 transition-transform duration-300" />
@@ -331,7 +410,7 @@ export default function HomePage() {
               </div>
 
               {/* Smart Nutrition Tips */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-300">
+              <div className={`bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-300 ${getAnimationClass('insights')}`}>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <Lightbulb className="w-6 h-6 text-green-700 hover:scale-110 transition-transform duration-300" />
@@ -390,7 +469,7 @@ export default function HomePage() {
 
             {/* Research & Progress Section */}
             <div className="grid lg:grid-cols-2 gap-8 mb-12">
-              <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-300">
+              <div className={`bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-300 ${getAnimationClass('insights')}`}>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <BookOpen className="w-6 h-6 text-green-700 hover:scale-110 transition-transform duration-300" />
@@ -449,7 +528,7 @@ export default function HomePage() {
               </div>
 
               {/* User Progress Trends */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-300">
+              <div className={`bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg hover:border-green-200 transition-all duration-300 ${getAnimationClass('insights')}`}>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <TrendingUp className="w-6 h-6 text-green-700 hover:scale-110 transition-transform duration-300" />
@@ -514,9 +593,12 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="w-full py-20 sm:py-16 md:py-20 bg-gray-700">
+      <section 
+        ref={ctaRef}
+        className="w-full py-20 sm:py-16 md:py-20 bg-gray-700"
+      >
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
+          <div className={`max-w-2xl mx-auto text-center ${getAnimationClass('cta')}`}>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 hover:text-green-100 transition-colors duration-300">
               Ready to Transform Your Nutrition?
             </h2>
