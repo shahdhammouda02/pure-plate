@@ -1,4 +1,5 @@
 import { edamamService } from '@/lib/edamam';
+import { generateMealPlanWithAI } from '@/lib/gemini';
 import { NextResponse } from 'next/server';
 
 const tips = [
@@ -18,6 +19,9 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { mealsPerDay, dietaryPreference, ingredients } = body;
+
+    // Try AI first for personalized tip
+    const aiResponse = await generateMealPlanWithAI(body);
 
     // Use a simpler approach - generate meals without overwhelming the API
     const mealTimes = getMealTimes(mealsPerDay);
@@ -43,19 +47,12 @@ export async function POST(req: Request) {
     }
 
     // Calculate total nutrients
-    const totalNutrients = allMeals.reduce((acc, meal) => ({
-      calories: acc.calories + meal.nutrients.calories,
-      protein: acc.protein + meal.nutrients.protein,
-      carbs: acc.carbs + meal.nutrients.carbs,
-      fat: acc.fat + meal.nutrients.fat
-    }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-
-    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    const totalNutrients = calculateTotal(allMeals);
 
     return NextResponse.json({
       meals: allMeals,
       totalNutrients,
-      tip: randomTip,
+      tip: aiResponse, // Now using AI-generated tip instead of random tip!
     });
   } catch (error) {
     console.error("Error generating meal plan:", error);
@@ -64,6 +61,16 @@ export async function POST(req: Request) {
     const fallbackResponse = await generateEnhancedFallbackPlan(await req.json());
     return NextResponse.json(fallbackResponse);
   }
+}
+
+// Add this missing function
+function calculateTotal(meals: any[]) {
+  return meals.reduce((acc, meal) => ({
+    calories: acc.calories + meal.nutrients.calories,
+    protein: acc.protein + meal.nutrients.protein,
+    carbs: acc.carbs + meal.nutrients.carbs,
+    fat: acc.fat + meal.nutrients.fat
+  }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
 }
 
 function getMealTimes(mealsPerDay: number): string[] {
@@ -106,13 +113,7 @@ async function generateEnhancedFallbackPlan(body: any) {
   const mealTimes = getMealTimes(mealsPerDay);
   const meals = getEnhancedFallbackMeals(mealsPerDay, dietaryPreference, mealTimes);
 
-  const totalNutrients = meals.reduce((acc, meal) => ({
-    calories: acc.calories + meal.nutrients.calories,
-    protein: acc.protein + meal.nutrients.protein,
-    carbs: acc.carbs + meal.nutrients.carbs,
-    fat: acc.fat + meal.nutrients.fat
-  }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-
+  const totalNutrients = calculateTotal(meals);
   const randomTip = tips[Math.floor(Math.random() * tips.length)];
 
   return {
