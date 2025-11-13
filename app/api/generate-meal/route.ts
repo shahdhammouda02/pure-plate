@@ -2,19 +2,6 @@ import { edamamService } from '@/lib/edamam';
 import { generateMealPlanWithAI } from '@/lib/gemini';
 import { NextResponse } from 'next/server';
 
-const tips = [
-  "Stay hydrated by drinking at least 8 glasses of water daily.",
-  "Include a variety of colorful vegetables for optimal nutrition.",
-  "Don't skip breakfast - it kickstarts your metabolism for the day.",
-  "Plan your meals ahead to avoid unhealthy last-minute choices.",
-  "Listen to your body's hunger and fullness cues.",
-  "Include healthy fats like avocado and nuts in your diet.",
-  "Meal prep on weekends to save time during busy weekdays.",
-  "Balance your plate with protein, carbs, and healthy fats.",
-  "Choose whole grains over refined carbohydrates when possible.",
-  "Enjoy your favorite foods in moderation - no food is off limits!"
-];
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -114,11 +101,12 @@ async function generateEnhancedFallbackPlan(body: any) {
   const meals = getEnhancedFallbackMeals(mealsPerDay, dietaryPreference, mealTimes);
 
   const totalNutrients = calculateTotal(meals);
-  const randomTip = tips[Math.floor(Math.random() * tips.length)];
+  // const randomTip = tips[Math.floor(Math.random() * tips.length)];
+  const aiTip = await generateMealPlanWithAI(body);
 
   return {
     meals,
     totalNutrients,
-    tip: randomTip,
+    tip: aiTip,
   };
 }

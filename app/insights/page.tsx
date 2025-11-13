@@ -22,13 +22,21 @@ import {
   RefreshCw,
   User
 } from "lucide-react";
-import tips from "@/data/tips.json";
+import { useAITip } from "@/hooks/useAITips";
 import { InsightData } from "@/types/meal";
 
 export default function InsightsPage() {
   const { data: session } = useSession();
   const [insightData, setInsightData] = useState<InsightData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Use AI tips for different sections
+const { tip: generalTip, loading: tipLoading, refreshTip } = useAITip("general");
+const { tip: nutritionTip } = useAITip("nutrition");
+const { tip: fitnessTip } = useAITip("fitness");
+const { tip: hydrationTip } = useAITip("hydration");
+const { tip: weightlossTip } = useAITip("weightloss");
+const { tip: snacksTip } = useAITip("snacks");
 
   useEffect(() => {
     loadInsightData();
@@ -255,28 +263,52 @@ export default function InsightsPage() {
           </CardContent>
         </Card>
 
-        {/* Nutrition Tips */}
-        <Card className="hover:shadow-lg hover:border-gray-300 transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 hover:text-green-700 transition-colors duration-300">
-              <Lightbulb className="w-6 h-6 hover:scale-110 transition-transform duration-300" />
-              Nutrition Tips
-            </CardTitle>
-            <CardDescription className="hover:text-gray-700 transition-colors duration-300">
-              Expert advice for your health journey
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {tips.slice(0, 6).map((tip, index) => (
-                <div key={index} className="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300 hover:scale-105 transition-all duration-300 cursor-pointer">
-                  <Star className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5 hover:scale-110 transition-transform duration-300" />
-                  <p className="text-yellow-800 text-sm leading-relaxed hover:text-yellow-700 transition-colors duration-300">{tip}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+    {/* AI Nutrition Tips */}
+    <Card className="hover:shadow-lg hover:border-gray-300 transition-all duration-300">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 hover:text-green-700 transition-colors duration-300">
+          <Lightbulb className="w-6 h-6 hover:scale-110 transition-transform duration-300" />
+          AI Nutrition Tips
+        </CardTitle>
+        <CardDescription className="hover:text-gray-700 transition-colors duration-300">
+          Smart tips powered by AI
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300 hover:scale-105 transition-all duration-300 cursor-pointer">
+            <Star className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5 hover:scale-110 transition-transform duration-300" />
+            <p className="text-yellow-800 text-sm leading-relaxed hover:text-yellow-700 transition-colors duration-300">{generalTip}</p>
+          </div>
+          <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300 hover:scale-105 transition-all duration-300 cursor-pointer">
+            <Star className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5 hover:scale-110 transition-transform duration-300" />
+            <p className="text-yellow-800 text-sm leading-relaxed hover:text-yellow-700 transition-colors duration-300">{nutritionTip}</p>
+          </div>
+          <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300 hover:scale-105 transition-all duration-300 cursor-pointer">
+            <Star className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5 hover:scale-110 transition-transform duration-300" />
+            <p className="text-yellow-800 text-sm leading-relaxed hover:text-yellow-700 transition-colors duration-300">{fitnessTip}</p>
+          </div>
+          <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300 hover:scale-105 transition-all duration-300 cursor-pointer">
+            <Star className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5 hover:scale-110 transition-transform duration-300" />
+            <p className="text-yellow-800 text-sm leading-relaxed hover:text-yellow-700 transition-colors duration-300">{hydrationTip}</p>
+          </div>
+        </div>
+        <div className="mt-4 text-center">
+          <Button
+            onClick={refreshTip}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 mx-auto"
+            disabled={tipLoading}
+          >
+            <RefreshCw className={`w-4 h-4 ${tipLoading ? 'animate-spin' : ''}`} />
+            {tipLoading ? 'Generating...' : 'Get New Tips'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+
+
 
         {/* Sign In CTA */}
         <div className="text-center mt-8">
@@ -502,29 +534,42 @@ export default function InsightsPage() {
         </Card>
       </div>
 
-      {/* Nutrition Tips */}
-      <Card className="mt-8 hover:shadow-lg hover:border-gray-300 transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 hover:text-green-700 transition-colors duration-300">
-            <Lightbulb className="w-5 h-5 hover:scale-110 transition-transform duration-300" />
-            Nutrition Tips
-          </CardTitle>
-          <CardDescription className="hover:text-gray-700 transition-colors duration-300">
-            Expert advice for your health journey
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {tips.slice(0, 6).map((tip, index) => (
-              <div key={index} className="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300 hover:scale-105 transition-all duration-300 cursor-pointer">
-                <Star className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5 hover:scale-110 transition-transform duration-300" />
-                <p className="text-yellow-800 text-sm leading-relaxed hover:text-yellow-700 transition-colors duration-300">{tip}</p>
-              </div>
-            ))}
+      
+  {/* AI Nutrition Tips */}
+  <Card className="mt-8 hover:shadow-lg hover:border-gray-300 transition-all duration-300">
+    <CardHeader>
+      <CardTitle className="flex items-center gap-2 hover:text-green-700 transition-colors duration-300">
+        <Lightbulb className="w-5 h-5 hover:scale-110 transition-transform duration-300" />
+        AI Nutrition Tips
+      </CardTitle>
+      <CardDescription className="hover:text-gray-700 transition-colors duration-300">
+        Smart tips powered by AI for your health journey
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[generalTip, nutritionTip, fitnessTip, hydrationTip, weightlossTip, snacksTip].map((tip, index) => (
+          <div key={index} className="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300 hover:scale-105 transition-all duration-300 cursor-pointer">
+            <Star className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5 hover:scale-110 transition-transform duration-300" />
+            <p className="text-yellow-800 text-sm leading-relaxed hover:text-yellow-700 transition-colors duration-300">{tip}</p>
           </div>
-        </CardContent>
-      </Card>
-
+        ))}
+      </div>
+      <div className="mt-4 text-center">
+        <Button
+          onClick={refreshTip}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2 mx-auto"
+          disabled={tipLoading}
+        >
+          <RefreshCw className={`w-4 h-4 ${tipLoading ? 'animate-spin' : ''}`} />
+          {tipLoading ? 'Generating...' : 'Get New Tips'}
+        </Button>
+      </div>
+    </CardContent>
+  </Card>
+  
       {/* Recommendations */}
       <Card className="mt-8 hover:shadow-lg hover:border-gray-300 transition-all duration-300">
         <CardHeader>
